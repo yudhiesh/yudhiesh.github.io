@@ -1,22 +1,24 @@
 ---
 layout: post
-title:  "Feature Flag Driven Development in Machine Learning"
-date:   2024-12-22 14:30:28 +0800
-categories: ML SWE
+title: "Feature Flag Driven Development in Machine Learning"
+date: 2024-12-22 12:00:00 +0000
+tag: ml
 ---
 # Table of Contents
 - [Overview](#overview)
 - [How Search Works](#how-search-works)
 - [Semantic Search vs Keyword Search](#semantic-search-vs-keyword-search)
 - [How Semantic Search Works](#how-semantic-search-works)
- - [Word Embeddings](#word-embeddings)
- - [Vector Databases](#vector-databases)
+  - [Word Embeddings](#word-embeddings)
+  - [Vector Databases](#vector-databases)
 - [Semantic Search Implementation](#how-semantic-search-works-1)
- - [Offline Process](#offline)
-   - [Document Embedding](#step-1)
- - [Online Process](#online)
-   - [Query Embedding](#step-1-1)
-   - [Similarity Search](#step-2)
+  - [Offline](#offline)
+    - [Step 1](#step-1)
+  - [Online](#online)
+    - [Step 1](#step-1-1)
+    - [Step 2](#step-2)
+  - [Big Picture of Semantic Search](#big-picture-of-semantic-search)
+  - [Pro Tip: Leverage OpenSearch Pipelines](#pro-tip-leverage-opensearch-pipelines)
 - [References](#references)
 
 # Overview
@@ -39,7 +41,7 @@ I won't be diving into the GenAI Search Service details in this post. Instead, I
 2. *System Reliability* - The search revamp was mission-critical. Poor results could drive users away from adopting the new system entirely.
 3. *Complex Integration Requirements* - Beyond standard search complexity, we needed to integrate machine learning models to improve result relevance.
 
-# How Search Works
+# How Search Works?
 The next section is a condensed version of this [amazing blog post from Eugene Yan](https://eugeneyan.com/writing/system-design-for-discovery/). 
 
 ![2x2 of online vs. offline environments, and candidate retrieval vs. ranking.](https://eugeneyan.com/assets/discovery-2x2.jpg "2x2 of online vs. offline environments, and candidate retrieval vs. ranking.")
@@ -112,7 +114,7 @@ The issue with Keyword Search and BM25(builds off TF-IDF) is that user queries a
 Keyword search fails to understand the context and meaning behind queries. A search for "affordable running shoes" might miss relevant results for "budget athletic footwear" despite their semantic similarity. This is where embeddings come in - they represent words and phrases as dense vectors in high-dimensional space, capturing semantic relationships and contextual nuances. By encoding meaning rather than just matching exact terms, embeddings enable search systems to understand that "cozy apartment" and "comfortable flat" are conceptually similar, even without shared keywords.
 ![Lexical search vs. Semantic search comparison](https://static.semrush.com/blog/uploads/media/31/50/3150dd9c369ec2c272658bdfb161ad3f/d78b61c1a1a21dac3d16147e9cb4852e/FLhzdoFxIHH23S-htv5mDsTi-bzzpric_UPiNDG8EH8TZvqEqv3FaXNVA4dNjMzXTK09stsR7mGjTH4TfJAEfPZN_KE91ZUND-6swWj9VFhtdMPNAyyFHq9sSdvxiBvHzhNFnExJBVVL5ZXupob8Cpc.png)
 
-## How Semantic Search Works
+## How Semantic Search Works?
 Semantic Search requires the following:
 - Word Embeddings
 - Vector Database
@@ -126,17 +128,17 @@ A vector database indexes and stores vector embeddings for fast retrieval and si
 ![https://www.pinecone.io/learn/vector-database/](https://www.pinecone.io/_next/image/?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fvr8gru94%2Fproduction%2Fe88ebbacb848b09e477d11eedf4209d10ea4ac0a-1399x537.png&w=1920&q=75)
 There are a ton of vector database options out there, largely split into purpose built vector databases and databases with vector extensions added to them.
 ![](https://media.licdn.com/dms/image/D5612AQFPNZxykG6Enw/article-cover_image-shrink_600_2000/0/1688152025187?e=2147483647&v=beta&t=_iGesp-lS22luisdy9BqvIXaYlTx8EfIQNgL4taflQY)
+
 Picking a vector database to use warrants its own blog post due to the sheer number of options and considerations that need to take place.
 
-## How Semantic Search Works?
 Going back to Eugene's terrific blog post we can see how a Semantic Search fits into the big picture by looking at the Retrieval section covering the offline and online side of search. 
 ![Image]({{ site.baseurl }}/images/Screenshot 2024-12-22 at 18.33.38.png)
 
 ### Offline
 
-#### Step 1
 A document comes in and is transformed from its format such as text/image into an embedding using an embedding model such as [thenlper/gte-large](https://huggingface.co/thenlper/gte-large). For example, lets say that we are trying perform semantic search over the `review_body` in the following document:
 ```json
+#### Step 1: Generating an Embedding for the Document
 {
   "review_id": "en_0802237",
   "product_id": "product_en_0417539",
@@ -165,7 +167,7 @@ After we run our embedding model on the field that we want to embed, we would ge
 ```
 ### Online
 
-#### Step 1
+#### Step 1: Generating an Embedding for the Query
 
 When a user's query comes in we will then convert that into an embedding using the exact same model that was used to embed the documents, this is a very important step. 
 ```json
@@ -180,6 +182,134 @@ After embedding the user's query you will get the following input document:
   "query_embedding": [0.2212, 0.9221, -0.1111]
 }
 ```
-#### Step 2
+#### Step 2: Searching over the Embeddings in the Database
+Next is the fun part where we effectively search over the documents that we store within the database using k-NN to search through the data and use a similarity evaluator/distance function to give us an understanding of what is close to the document that we are searching for. Below is a sample implementation of it in plain Python using Cosine Similarity as the similarity evaluator
+```python
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from sentence_transformers import SentenceTransformer
+
+def knn_search(query: str, k: int = 2) -> list:
+    """
+    Perform k-NN search over a mock database using sentence embeddings
+    
+    Args:
+        query (str): Search query text
+        k (int): Number of nearest neighbors to return
+        mock_data (dict): Optional mock database. If None, uses default example data
+        
+    Returns:
+        list: Top k documents and their similarity scores as (doc_id, similarity, text) tuples
+    """
+    # Initialize the embedding model
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+    
+	mock_data = {
+		'doc1': 'The quick brown fox jumps over the lazy dog',
+		'doc2': 'Machine learning is a subset of artificial intelligence',
+		'doc3': 'Python is a versatile programming language',
+		'doc4': 'Neural networks are inspired by biological brains',
+		'doc5': 'Data science involves statistics and programming'
+	}
+    
+    # Compute query embedding
+    query_embedding = model.encode(query)
+    
+    # Compute embeddings for all documents and calculate similarities
+    similarities = []
+    for doc_id, text in mock_data.items():
+        doc_embedding = model.encode(text)
+        similarity = cosine_similarity(
+            query_embedding.reshape(1, -1),
+            doc_embedding.reshape(1, -1)
+        )[0][0]
+        similarities.append((doc_id, similarity, text))
+    
+    # Sort by similarity and return top k
+    similarities.sort(key=lambda x: x[1], reverse=True)
+    return similarities[:k]
+```
+NOTE: When it comes to vector search you can do it two ways:
+1. Brute Force - $O(n)$ operation using k-NN where you compare the query vector against every single vector in your database, calculating distances/similarities for each one. This is accurate but becomes slow with large datasets.
+2. Approximate - Uses specialised data structures and algorithms (like LSH, HNSW, or IVF) to create indices that enable $O(\log n) $$ or better search times. While not 100% accurate, these methods trade a small accuracy loss for dramatically faster search speeds. Popular implementations include:
+   - FAISS (Facebook AI Similarity Search)
+   - Annoy (Spotify)
+   - ScaNN (Google)
+   - HNSW (Hierarchical Navigable Small World graphs)
+   These approximate methods typically achieve 95-99% accuracy compared to brute force while being orders of magnitude faster, making them practical for large-scale applications.
+
+Below is a chart highlighting the inflection point in terms of dataset size where it pays off to actually start using ANN over k-NN. Depending on your situation and product needs you might have to stick to just using k-NN if you require 100% accuracy in retrieved search results while taking the increase in latency.
+
+![Image]({{ site.baseurl }}/images/Screenshot 2024-12-25 at 11.18.43.png)
+### Big Picture of Semantic Search
+Taking a step back this is how the step-by-by of the offline and online flow looks like:
+![Image]({{ site.baseurl }}/images/Screenshot 2024-12-25 at 20.33.06.png)
+### Pro Tip: Leverage OpenSearch Pipelines
+Trying to implement this is quite a challenge especially considering the fact that we have two different stages the online and offline stage. Its very easy to mess things up and introduce what is known as *training-serving skew* where there are differences between the offline and online section of Machine Learning systems. In this scenario we would have to ensure that the embedding model that we use for the offline and online system are exactly the same and more importantly use the exact same parameters such as the:
+- maximum sequence length
+- text processing parameters
+- etc.
+OpenSearch has this neat functionality where you can [deploy Machine Learning Models](https://opensearch.org/docs/latest/ml-commons-plugin/pretrained-models/) within the same OpenSearch cluster and leverage [ingest pipelines](https://opensearch.org/docs/latest/ingest-pipelines/) in order to setup a pipeline that can be used for converting documents during ingestion time(offline) and the query(online) into embeddings for you to process:
+```json
+PUT /_ingest/pipeline/nlp-ingest-pipeline
+{
+  "description": "A text embedding pipeline",
+  "processors": [
+    {
+      "text_embedding": {
+        "model_id": "bQ1J8ooBpBj3wT4HVUsb", # MODEL_ID 
+        "field_map": {
+          "passage_text": "passage_embedding"
+        }
+      }
+    }
+  ]
+}
+```
+In the k-NN index you would then set the pipeline to use via the `default-pipeline` to use parameter:
+```json
+PUT /my-nlp-index
+{
+  "settings": {
+    "index.knn": true,
+    "default_pipeline": "nlp-ingest-pipeline" # HERE
+  },
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "text"
+      },
+      "passage_embedding": {
+        "type": "knn_vector",
+        "dimension": 768,
+        "method": {
+          "engine": "lucene",
+          "space_type": "l2",
+          "name": "hnsw",
+          "parameters": {}
+        }
+      },
+      "passage_text": {
+        "type": "text"
+      }
+    }
+  }
+}
+```
+By leveraging OpenSearch pipelines we do not have to perform the steps that are highlighted in green, which simplifies the overall process.
+
+![Image]({{ site.baseurl }}/images/Screenshot 2024-12-27 at 23.33.04.png)
+
+Be warned this ease does come with some downsides:
+- *colocation of Machine Learning workflows with Search workflows on the same nodes*, especially when using the managed offering for OpenSearch on AWS you do not have the ability to specify that the Machine Learning models deployed on the OpenSearch cluster are deployed on specific nodes just for Machine Learning models, this however can be done if you self-host OpenSearch and specify a node's role via the [ML Commons cluster settings](https://opensearch.org/docs/latest/ml-commons-plugin/cluster-settings/).
+- *less flexibility in Machine Learning model deployment frameworks*, as OpenSearch ML Commons uses [Deep Java Library](https://djl.ai/)to deploy ML models.
+- *limited support for custom remote ML model endpoints*, this is true if you are using the Managed OpenSearch offering where although it might seem like it supports a lot of different options as per the [docs](https://github.com/opensearch-project/ml-commons/tree/main/docs/remote_inference_blueprints), on the contrary it only works with publicly exposed API Endpoint due to the fact that a managed service on AWS is deployed within AWS's own private account with VPC access from a customers AWS account to said AWS account but not the other way around due to the [unidirectional nature of AWS PrivateLink](https://docs.aws.amazon.com/whitepapers/latest/building-scalable-secure-multi-vpc-network-infrastructure/aws-privatelink.html). 
+
+# Feature Flags to the Rescue!
+
+Okay I have been rambling on about Semantic Search a lot and you must be wondering *"Geez Yudhiesh get to your point already!"*, now the biggest issue with all of this was that I had to do all of these steps into a codebase that I was:
+- completely new to in terms of contributing 
+- it was in Java which I have not touched since university and never had much fun coding in
+Plus I had to do it quick and with zero impact on the current search experience which was being A/B tested by Data Scientists that were monitoring key metrics such as Click-through Rate(CTR).
 
 # References
