@@ -1,24 +1,25 @@
 ---
 layout: post
 title: "Feature Flag Driven Development in Machine Learning"
-date: 2024-12-22 12:00:00 +0000
-tag: ml
+date: 2024-12-27 12:00:00 +0000
+tags: ml
+mathjax: true
 ---
 # Table of Contents
 - [Overview](#overview)
-- [How Search Works](#how-search-works)
+- [How Search Works?](#how-search-works)
 - [Semantic Search vs Keyword Search](#semantic-search-vs-keyword-search)
-- [How Semantic Search Works](#how-semantic-search-works)
+- [How Semantic Search Works?](#how-semantic-search-works)
   - [Word Embeddings](#word-embeddings)
   - [Vector Databases](#vector-databases)
 - [Semantic Search Implementation](#how-semantic-search-works-1)
   - [Offline](#offline)
-    - [Step 1](#step-1)
   - [Online](#online)
-    - [Step 1](#step-1-1)
-    - [Step 2](#step-2)
   - [Big Picture of Semantic Search](#big-picture-of-semantic-search)
   - [Pro Tip: Leverage OpenSearch Pipelines](#pro-tip-leverage-opensearch-pipelines)
+- [Feature Flags to the Rescue](#feature-flags-to-the-rescue)
+  - [What are Feature Flags?](#what-are-feature-flags)
+  - [Integrating Feature Flag Platforms into our ML System](#integrating-feature-flag-platforms-into-our-ml-system)
 - [References](#references)
 
 # Overview
@@ -26,9 +27,9 @@ In my prior role I was working on building out our companies search engine where
 ![User asking SGE to evaluate two national parks that are best for young kids and a dog](https://storage.googleapis.com/gweb-uniblog-publish-prod/images/IOM_BryceCanyon_Desktop_Launch.width-1000.format-webp.webp)
 
 Breaking this down we can split the main important parts of building out the entire search experience for users into:
-1. Query - The user's query 
-2. GenAI Search Results - Output from the GenAI Search Service results, powered by an LLM
-3. "Regular" Search Results - Output from the Regular Search Results
+1. *Query* - The user's query 
+2. *GenAI Search Results* - Output from the GenAI Search Service results, powered by an LLM
+3. *"Regular" Search Results* - Output from the Regular Search Results
 
 ![Image]({{ site.baseurl }}/images/Screenshot 2024-12-22 at 15.46.05.png)
 
@@ -40,6 +41,8 @@ I won't be diving into the GenAI Search Service details in this post. Instead, I
 1. *Time* - Like most startups, features needed to ship "yesterday"
 2. *System Reliability* - The search revamp was mission-critical. Poor results could drive users away from adopting the new system entirely.
 3. *Complex Integration Requirements* - Beyond standard search complexity, we needed to integrate machine learning models to improve result relevance.
+
+If you aren't interested in going into the details about Semantic Search and want to dive into how feature flags can be used to speed up your development work then head on over [here](#feature-flags-to-the-rescue).
 
 # How Search Works?
 The next section is a condensed version of this [amazing blog post from Eugene Yan](https://eugeneyan.com/writing/system-design-for-discovery/). 
@@ -108,10 +111,10 @@ In the Machine Learning space, you would learn these sorts of interactions inste
 
 ## Semantic Search vs Keyword Search
 The issue with Keyword Search and BM25(builds off TF-IDF) is that user queries aren't as black and white as finding the most relevant document looking into:
-- how frequently a term appears in a document(TF)
-- how unique that term is across all documents(IDF)
+- *how frequently a term appears in a document(TF)*
+- *how unique that term is across all documents(IDF)*
 
-Keyword search fails to understand the context and meaning behind queries. A search for "affordable running shoes" might miss relevant results for "budget athletic footwear" despite their semantic similarity. This is where embeddings come in - they represent words and phrases as dense vectors in high-dimensional space, capturing semantic relationships and contextual nuances. By encoding meaning rather than just matching exact terms, embeddings enable search systems to understand that "cozy apartment" and "comfortable flat" are conceptually similar, even without shared keywords.
+Keyword search fails to understand the context and meaning behind queries. A search for *"affordable running shoes"* might miss relevant results for *"budget athletic footwear"* despite their semantic similarity. This is where embeddings come in - they represent words and phrases as dense vectors in high-dimensional space, capturing semantic relationships and contextual nuances. By encoding meaning rather than just matching exact terms, embeddings enable search systems to understand that "cozy apartment" and "comfortable flat" are conceptually similar, even without shared keywords.
 ![Lexical search vs. Semantic search comparison](https://static.semrush.com/blog/uploads/media/31/50/3150dd9c369ec2c272658bdfb161ad3f/d78b61c1a1a21dac3d16147e9cb4852e/FLhzdoFxIHH23S-htv5mDsTi-bzzpric_UPiNDG8EH8TZvqEqv3FaXNVA4dNjMzXTK09stsR7mGjTH4TfJAEfPZN_KE91ZUND-6swWj9VFhtdMPNAyyFHq9sSdvxiBvHzhNFnExJBVVL5ZXupob8Cpc.png)
 
 ## How Semantic Search Works?
@@ -138,7 +141,7 @@ Going back to Eugene's terrific blog post we can see how a Semantic Search fits 
 
 A document comes in and is transformed from its format such as text/image into an embedding using an embedding model such as [thenlper/gte-large](https://huggingface.co/thenlper/gte-large). For example, lets say that we are trying perform semantic search over the `review_body` in the following document:
 ```json
-#### Step 1: Generating an Embedding for the Document
+#### Phase 1: Generating an Embedding for the Document
 {
   "review_id": "en_0802237",
   "product_id": "product_en_0417539",
@@ -167,7 +170,7 @@ After we run our embedding model on the field that we want to embed, we would ge
 ```
 ### Online
 
-#### Step 1: Generating an Embedding for the Query
+#### Phase 1: Generating an Embedding for the Query
 
 When a user's query comes in we will then convert that into an embedding using the exact same model that was used to embed the documents, this is a very important step. 
 ```json
@@ -182,7 +185,7 @@ After embedding the user's query you will get the following input document:
   "query_embedding": [0.2212, 0.9221, -0.1111]
 }
 ```
-#### Step 2: Searching over the Embeddings in the Database
+#### Phase 2: Searching over the Embeddings in the Database
 Next is the fun part where we effectively search over the documents that we store within the database using k-NN to search through the data and use a similarity evaluator/distance function to give us an understanding of what is close to the document that we are searching for. Below is a sample implementation of it in plain Python using Cosine Similarity as the similarity evaluator
 ```python
 import numpy as np
@@ -230,12 +233,13 @@ def knn_search(query: str, k: int = 2) -> list:
     return similarities[:k]
 ```
 NOTE: When it comes to vector search you can do it two ways:
-1. Brute Force - $O(n)$ operation using k-NN where you compare the query vector against every single vector in your database, calculating distances/similarities for each one. This is accurate but becomes slow with large datasets.
-2. Approximate - Uses specialised data structures and algorithms (like LSH, HNSW, or IVF) to create indices that enable $O(\log n) $$ or better search times. While not 100% accurate, these methods trade a small accuracy loss for dramatically faster search speeds. Popular implementations include:
-   - FAISS (Facebook AI Similarity Search)
-   - Annoy (Spotify)
-   - ScaNN (Google)
-   - HNSW (Hierarchical Navigable Small World graphs)
+1. Brute Force - $$O(n)$$ operation using k-NN where you compare the query vector against every single vector in your database, calculating distances/similarities for each one. This is accurate but becomes slow with large datasets.
+2. Approximate - Uses specialised data structures and algorithms (like LSH, HNSW, or IVF) to create indices that enable $$O(\log n)$$ or better search times. While not 100% accurate, these methods trade a small accuracy loss for dramatically faster search speeds. Popular implementations include:
+   - [FAISS (Facebook AI Similarity Search)](https://github.com/facebookresearch/faiss)
+   - [Annoy (Spotify)](https://github.com/spotify/annoy)
+   - [ScaNN (Google)](https://github.com/google-research/google-research/tree/master/scann)
+   - etc.
+
    These approximate methods typically achieve 95-99% accuracy compared to brute force while being orders of magnitude faster, making them practical for large-scale applications.
 
 Below is a chart highlighting the inflection point in terms of dataset size where it pays off to actually start using ANN over k-NN. Depending on your situation and product needs you might have to stick to just using k-NN if you require 100% accuracy in retrieved search results while taking the increase in latency.
@@ -246,9 +250,10 @@ Taking a step back this is how the step-by-by of the offline and online flow loo
 ![Image]({{ site.baseurl }}/images/Screenshot 2024-12-25 at 20.33.06.png)
 ### Pro Tip: Leverage OpenSearch Pipelines
 Trying to implement this is quite a challenge especially considering the fact that we have two different stages the online and offline stage. Its very easy to mess things up and introduce what is known as *training-serving skew* where there are differences between the offline and online section of Machine Learning systems. In this scenario we would have to ensure that the embedding model that we use for the offline and online system are exactly the same and more importantly use the exact same parameters such as the:
-- maximum sequence length
-- text processing parameters
+- *maximum sequence length*
+- *text processing parameters*
 - etc.
+
 OpenSearch has this neat functionality where you can [deploy Machine Learning Models](https://opensearch.org/docs/latest/ml-commons-plugin/pretrained-models/) within the same OpenSearch cluster and leverage [ingest pipelines](https://opensearch.org/docs/latest/ingest-pipelines/) in order to setup a pipeline that can be used for converting documents during ingestion time(offline) and the query(online) into embeddings for you to process:
 ```json
 PUT /_ingest/pipeline/nlp-ingest-pipeline
@@ -302,7 +307,7 @@ By leveraging OpenSearch pipelines we do not have to perform the steps that are 
 
 Be warned this ease does come with some downsides:
 - *colocation of Machine Learning workflows with Search workflows on the same nodes*, especially when using the managed offering for OpenSearch on AWS you do not have the ability to specify that the Machine Learning models deployed on the OpenSearch cluster are deployed on specific nodes just for Machine Learning models, this however can be done if you self-host OpenSearch and specify a node's role via the [ML Commons cluster settings](https://opensearch.org/docs/latest/ml-commons-plugin/cluster-settings/).
-- *less flexibility in Machine Learning model deployment frameworks*, as OpenSearch ML Commons uses [Deep Java Library](https://djl.ai/)to deploy ML models.
+- *less flexibility in Machine Learning model deployment frameworks*, as OpenSearch ML Commons uses [Deep Java Library](https://djl.ai/)to deploy ML models I would prefer to use my current stack which has been battle-tested and supports Monitoring & Observability out-of-the box.
 - *limited support for custom remote ML model endpoints*, this is true if you are using the Managed OpenSearch offering where although it might seem like it supports a lot of different options as per the [docs](https://github.com/opensearch-project/ml-commons/tree/main/docs/remote_inference_blueprints), on the contrary it only works with publicly exposed API Endpoint due to the fact that a managed service on AWS is deployed within AWS's own private account with VPC access from a customers AWS account to said AWS account but not the other way around due to the [unidirectional nature of AWS PrivateLink](https://docs.aws.amazon.com/whitepapers/latest/building-scalable-secure-multi-vpc-network-infrastructure/aws-privatelink.html). 
 
 # Feature Flags to the Rescue!
@@ -310,6 +315,178 @@ Be warned this ease does come with some downsides:
 Okay I have been rambling on about Semantic Search a lot and you must be wondering *"Geez Yudhiesh get to your point already!"*, now the biggest issue with all of this was that I had to do all of these steps into a codebase that I was:
 - completely new to in terms of contributing 
 - it was in Java which I have not touched since university and never had much fun coding in
-Plus I had to do it quick and with zero impact on the current search experience which was being A/B tested by Data Scientists that were monitoring key metrics such as Click-through Rate(CTR).
+
+Plus I had to do it *quick* and with *zero impact on the current search experience* which was being A/B tested by Data Scientists that were monitoring key metrics such as Click-through Rate(CTR).
+
+## What are Feature Flags?
+
+Now going back to our problem statement, a very simple thing to do would be to ensure that only I could interact with said feature. In doing so we would be able to solve said issues due to the fact that if I am the only person interacting with the feature:
+- impact is centered around my own experience instead of end users.
+- we can relaxen our requirements to push the feature out, perhaps we don't have to push for 100% test coverage, etc. and instead can trial out the feature to prove it solves the problem in the first place prior to investing more time and effort into it
+
+Our Search API would take in as the minimum the following payload:
+```json
+{
+  "query": "Food",
+  "userId": 123456789
+}
+```
+Now since we had a good culture of [dog fooding](https://en.wikipedia.org/wiki/Eating_your_own_dog_food), I already had my own account for our mobile app.
+> Side note, if you work at an organization and don't even use the product offered, how can you even improve it in any way?
+
+In my code based on this, I could do something like this where I expose the feature out to my `userId` exclusively
+```java
+public class SearchService {
+    private static final long MY_USER_ID = 123456789;
+    
+    public SearchResponse search(SearchRequest request) {
+        if (request.getUserId() == MY_USER_ID) {
+            return semanticSearch(request);
+        }
+        return standardSearch(request);
+    }
+    
+    private SearchResponse semanticSearch(SearchRequest request) {
+        // New semantic search implementation
+        return SearchResponse.builder()
+                .results(semanticSearchEngine.search(request.getQuery()))
+                .build();
+    }
+    
+    private SearchResponse standardSearch(SearchRequest request) {
+        // Existing search implementation
+        return SearchResponse.builder()
+                .results(searchEngine.search(request.getQuery()))
+                .build();
+    }
+}
+```
+> In reality there was a separate service to translate a `user's id -> user's email` instead of trying to manually figure this out.
+
+Essentially what we have done here is setup a very basic feature flag for our application!
+
+> Feature flags are a software development concept that allow you to enable or disable a feature without modifying the source code or requiring a redeploy.
+
+But how would we handle the following situations:
+- adding in more user's to the target pool to be shown semantic search results? 
+
+With the current implementation we would not adhere to the definition of a feature flag and instead would be require a redeployment of the application each time we had to alter the target users to expose this feature flag to.
+
+## Feature Flag Platforms
+
+With the aforementioned limitation, a feature flag management platform comes in to solve the problem. These platforms allow you to wrap all your feature flags behind an API that you interact with and more importantly allow you to make changes to them quickly via a simple UI.
+
+Here are some example platforms:
+- [LaunchDarkly](https://launchdarkly.com/)
+- [Split.io](https://www.split.io/)
+
+![Feature Flag Management Platform](https://www.split.io/wp-content/uploads/Homepage-Release.png)
+
+These platforms enable sophisticated flag management:
+
+1. **Targeting Control**
+- Individual user targeting by ID, email, or custom attributes
+- Bulk user targeting via CSV uploads
+- Percentage-based rollouts
+- Geographic targeting
+- Device/platform specific releases
+
+2. **Advanced Features**
+- Real-time flag updates without code deployments
+- Detailed audit logs for flag changes
+- A/B testing and experimentation tools
+- Flag dependencies and prerequisites
+- SDKs for multiple programming languages
+
+## Integrating Feature Flag Platforms into our ML System
+This integration needed to happen in two phases.
+
+### Phase 1: Data Ingestion
+First, we needed to ensure documents were being indexed into OpenSearch alongside our existing search engine. In our setup we had a Kafka topic that we listened to for new documents to be ingested which had to write new data to the OpenSearch index with the k-NN index setup. I also had to reindex the new k-NN index with data from the original index used for lexical search but this code has been excluded. This required:
+```java
+@Service
+@Slf4j
+public class DocumentIngestionService {
+    private final LaunchDarkly ldClient;
+    private final OpenSearchClient openSearchClient;
+    private static final String OPENSEARCH_INGESTION_FLAG = "enable-opensearch-ingestion";
+    
+    @KafkaListener(topics = "documents-topic")
+    public void processDocument(ConsumerRecord<String, Document> record) {
+        LDUser systemUser = new LDUser.Builder("system")
+                .custom("environment", getEnvironment())
+                .build();
+                
+        boolean enableOpenSearchIngestion = ldClient.boolVariation(
+            OPENSEARCH_INGESTION_FLAG,
+            systemUser,
+            false
+        );
+        
+        if (enableOpenSearchIngestion) {
+            try {
+                IndexRequest<Document> request = IndexRequest.of(r -> r
+                    .index("documents")
+                    .id(record.key())
+                    .document(record.value())
+                );
+                openSearchClient.index(request);
+                log.info("Document indexed in OpenSearch: {}", record.key());
+            } catch (Exception e) {
+                log.error("Failed to index document in OpenSearch: {}", record.key(), e);
+            }
+        }
+        
+        // Continue with existing processing
+        processExistingSystem(record);
+    }
+}
+```
+
+### Phase 2: Search Implementation
+Only after confirming successful data ingestion did we enabel the semantic search feature. 
+```java
+public class SearchService {
+   private final LaunchDarkly ldClient;
+   private static final String SEMANTIC_SEARCH_FLAG = "semantic-search-enabled";
+   
+   public SearchService(LaunchDarkly ldClient) {
+       this.ldClient = ldClient;
+   }
+   
+   public SearchResponse search(SearchRequest request) {
+       LDUser user = new LDUser.Builder(String.valueOf(request.getUserId()))
+               .build();
+               
+       boolean semanticSearchEnabled = ldClient.boolVariation(
+           SEMANTIC_SEARCH_FLAG, 
+           user, 
+           false  // fallback value if flag evaluation fails
+       );
+       
+       if (semanticSearchEnabled) {
+           return semanticSearch(request);
+       }
+       return standardSearch(request);
+   }
+   
+   private SearchResponse semanticSearch(SearchRequest request) {
+       return SearchResponse.builder()
+               .results(semanticSearchEngine.search(request.getQuery()))
+               .build();
+   }
+   
+   private SearchResponse standardSearch(SearchRequest request) {
+       return SearchResponse.builder()
+               .results(searchEngine.search(request.getQuery()))
+               .build();
+   }
+}
+```
+Now with that I was able to safely and quickly deploy a very experimental feature out and test it in Production with *zero* impact to end users, isn't that neat. 
 
 # References
+- [System Design for Recommendations and Search](https://eugeneyan.com/writing/system-design-for-discovery/)
+- [Building a semantic serach engine in OpenSearch](https://opensearch.org/blog/semantic-search-solutions/)
+- [Feature Toggles](https://martinfowler.com/articles/feature-toggles.html)
+
