@@ -233,8 +233,8 @@ def knn_search(query: str, k: int = 2) -> list:
     return similarities[:k]
 ```
 NOTE: When it comes to vector search you can do it two ways:
-1. Brute Force - $$O(n)$$ operation using k-NN where you compare the query vector against every single vector in your database, calculating distances/similarities for each one. This is accurate but becomes slow with large datasets.
-2. Approximate - Uses specialised data structures and algorithms (like LSH, HNSW, or IVF) to create indices that enable $$O(\log n)$$ or better search times. While not 100% accurate, these methods trade a small accuracy loss for dramatically faster search speeds. Popular implementations include:
+1. Brute Force - using k-NN where you compare the query vector against every single vector in your database, calculating distances/similarities for each one. This is accurate but becomes slow with large datasets.
+2. Approximate - Uses specialised data structures and algorithms (like LSH, HNSW, or IVF) to create indices that enable better search times. While not 100% accurate, these methods trade a small accuracy loss for dramatically faster search speeds. Popular implementations include:
    - [FAISS (Facebook AI Similarity Search)](https://github.com/facebookresearch/faiss)
    - [Annoy (Spotify)](https://github.com/spotify/annoy)
    - [ScaNN (Google)](https://github.com/google-research/google-research/tree/master/scann)
