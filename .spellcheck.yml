@@ -18,5 +18,3 @@ matrix:
   sources:
   - 'README.md'
   - 'docs/_posts/*.markdown'
-  - 'docs/about.markdown'
-  - 'docs/index.markdown'
