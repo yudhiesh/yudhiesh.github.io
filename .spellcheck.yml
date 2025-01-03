@@ -1,26 +1,28 @@
-matrixmatrix:
-- name: Markdown
-  aspell:
-    lang: en
-  dictionary:
-    wordlists:
-    - .wordlist.txt
-    encoding: utf-8
-  pipeline:
-  - pyspelling.filters.markdown:
-      markdown_extensions:
-      - pymdownx.superfences
-  - pyspelling.filters.html:
-      comments: false
-      attributes:
-      - alt
-      ignores:
-      - code
-      - pre
-      - ':matches(code, pre)'
-      - 'img'
-  sources:
-  - 'README.md'
-  - 'docs/_posts/*.markdown'
-  - 'docs/about.markdown'
-  - 'docs/index.markdown':
+matrix:
+  - name: Markdown
+    aspell:
+      lang: en
+    dictionary:
+      wordlists:
+        - .wordlist.txt
+      encoding: utf-8
+    pipeline:
+      - pyspelling.filters.markdown:
+          markdown_extensions:
+            - pymdownx.superfences
+      - pyspelling.filters.html:
+          comments: false
+          attributes:
+            - alt
+            - href
+          ignores:
+            - code
+            - pre
+            - ':matches(code, pre)'
+            - 'img'
+            - 'a'
+    sources:
+      - 'README.md'
+      - 'docs/_posts/*.markdown'
+      - 'docs/about.markdown'
+      - 'docs/index.markdown'
