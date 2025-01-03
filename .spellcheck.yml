@@ -1,0 +1,22 @@
+matrix:
+- name: Markdown
+  expect_match: false
+  apsell:
+    mode: en
+  pipeline:
+  - pyspelling.filters.markdown:
+      markdown_extensions:
+      - markdown.extensions.extra:
+  - pyspelling.filters.html:
+      comments: false
+      attributes:
+      - alt
+      ignores:
+      - ':matches(code, pre)'
+      - 'code'
+      - 'pre'
+  sources:
+  - 'README.md'
+  - 'docs/_posts/*.markdown'
+  - 'docs/about.markdown'
+  - 'docs/index.markdown'
