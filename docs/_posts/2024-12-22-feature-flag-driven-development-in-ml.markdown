@@ -444,7 +444,7 @@ public class DocumentIngestionService {
 ```
 
 ### Phase 2: Search Implementation
-Only after confirming successful data ingestion did we enabel the semantic search feature. 
+Only after confirming successful data ingestion did we enable the semantic search feature. 
 ```java
 public class SearchService {
    private final LaunchDarkly ldClient;
@@ -487,6 +487,6 @@ Now with that I was able to safely and quickly deploy a very experimental featur
 
 # References
 - [System Design for Recommendations and Search](https://eugeneyan.com/writing/system-design-for-discovery/)
-- [Building a semantic serach engine in OpenSearch](https://opensearch.org/blog/semantic-search-solutions/)
+- [Building a semantic search engine in OpenSearch](https://opensearch.org/blog/semantic-search-solutions/)
 - [Feature Toggles](https://martinfowler.com/articles/feature-toggles.html)
 
