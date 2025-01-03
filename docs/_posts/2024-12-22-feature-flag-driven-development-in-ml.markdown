@@ -246,7 +246,7 @@ Below is a chart highlighting the inflection point in terms of dataset size wher
 
 ![Image]({{ site.baseurl }}/images/Screenshot 2024-12-25 at 11.18.43.png)
 ### Big Picture of Semantic Search
-Taking a step back this is how the step-by-by of the offline and online flow looks like:
+Taking a step back this is how the step-by-step of the offline and online flow looks like:
 ![Image]({{ site.baseurl }}/images/Screenshot 2024-12-25 at 20.33.06.png)
 ### Pro Tip: Leverage OpenSearch Pipelines
 Trying to implement this is quite a challenge especially considering the fact that we have two different stages the online and offline stage. Its very easy to mess things up and introduce what is known as *training-serving skew* where there are differences between the offline and online section of Machine Learning systems. In this scenario we would have to ensure that the embedding model that we use for the offline and online system are exactly the same and more importantly use the exact same parameters such as the:
@@ -444,7 +444,7 @@ public class DocumentIngestionService {
 ```
 
 ### Phase 2: Search Implementation
-Only after confirming successful data ingestion did we enabel the semantic search feature. 
+Only after confirming successful data ingestion did we enable the semantic search feature. 
 ```java
 public class SearchService {
    private final LaunchDarkly ldClient;
@@ -487,6 +487,6 @@ Now with that I was able to safely and quickly deploy a very experimental featur
 
 # References
 - [System Design for Recommendations and Search](https://eugeneyan.com/writing/system-design-for-discovery/)
-- [Building a semantic serach engine in OpenSearch](https://opensearch.org/blog/semantic-search-solutions/)
+- [Building a semantic search engine in OpenSearch](https://opensearch.org/blog/semantic-search-solutions/)
 - [Feature Toggles](https://martinfowler.com/articles/feature-toggles.html)
 
