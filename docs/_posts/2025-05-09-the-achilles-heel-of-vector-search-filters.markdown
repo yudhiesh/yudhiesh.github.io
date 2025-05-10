@@ -15,7 +15,7 @@ mathjax: true
 * [Filtered vs Unfiltered Search Performance](#filtered-vs-unfiltered-search-performance)
 * [Why Filtered Vector Search Is Slower than Traditional Filtering](#why-filtered-vector-search-is-slower-than-traditional-filtering)
 * [Filter Fusion: Encoding Filters into Embeddings](#filter-fusion-encoding-filters-into-embeddings)
-* [Limitations of Embedding-Level Filter Fusion](#limitations-of-embedding-level-filter-fusion)
+  * [Limitations of Embedding-Level Filter Fusion](#limitations-of-embedding-level-filter-fusion)
 * [References](#references)
 
 
@@ -192,17 +192,26 @@ Imagine if for each vector, we could append a small descriptor of its metadata, 
 
 **Motivation & Intuition**: If the vector space can incorporate both content and metadata, then a single nearest neighbor search can handle both aspects. This eliminates the need for separate filtering logic and ensures zero overhead for applying filters – the math of similarity takes care of it. It also potentially means we can use off-the-shelf ANN methods without modification, because we’re just searching in a slightly higher-dimensional space (original embedding + metadata encoding).
 
-One simple approach to filter fusion is vector concatenation. For example, say each data vector is 256- dim and we have a categorical filter with 10 possible values. We can allocate an extra 10 dimensions (a one-hot encoding for the category). A vector for an item in category 3 would have those extra 10 dims all 0 except a 1 in position 3. A query that requires category 3 would similarly have that one-hot in its vector. If we use standard Euclidean or cosine distance on the combined (266-dim) vectors, a candidate from a different category will have a large distance on the metadata dimensions, likely pushing it out of the top results. We can even exaggerate this by weighting the metadata dimensions more strongly (e.g. set the one-hot to some large value) so that any category mismatch dominates the distance. In effect, the nearest neighbor search “prefers” vectors of the same category because others are far away in those extra dimensions.
+One simple approach to filter fusion is vector concatenation. For example, say each data vector has a 256 dimension and we have a categorical filter with 10 possible values. We can allocate an extra 10 dimensions (a one-hot encoding for the category). A vector for an item in category 3 would have those extra 10 dims all 0 except a 1 in position 3. A query that requires category 3 would similarly have that one-hot in its vector. If we use standard Euclidean or cosine distance on the combined (266-dim) vectors, a candidate from a different category will have a large distance on the metadata dimensions, likely pushing it out of the top results. We can even exaggerate this by weighting the metadata dimensions more strongly (e.g. set the one-hot to some large value) so that any category mismatch dominates the distance. In effect, the nearest neighbor search “prefers” vectors of the same category because others are far away in those extra dimensions.
+
 
 **Filter Fusion in Practice (RAG Retrieval)**: Imagine a retrieval scenario with 1,000 mixed documents—manuals, FAQs, and tutorials—where only FAQs should be returned. By appending a high-weight one-hot slice that encodes each document’s type (and the query’s desired type) to the embedding, a single ANN search naturally ranks only FAQs at the top, removing the need for any separate filter step.
 ```python
 import numpy as np
 from enum import IntEnum
+from typing import Sequence
 
 class DocType(IntEnum):
-    MANUAL = 0
-    FAQ = 1
+    MANUAL   = 0
+    FAQ      = 1
     TUTORIAL = 2
+
+    @classmethod
+    def names(cls, types: Sequence[int]) -> list[str]:
+        """
+        Given a sequence of integer type codes, return the corresponding DocType names.
+        """
+        return [cls(t).name for t in types]
 
 def filter_fusion_search(
     doc_embeds: np.ndarray,
@@ -243,7 +252,7 @@ def filter_fusion_search(
     idx = np.argsort(dists)[:top_k]
 
     print(f"Top-{top_k} indices: {idx}")
-    print("Types:", doc_types[idx])
+    print("Document types:", DocType.names(doc_types[idx]))   
     print("Distances:", np.around(dists[idx], 3))
 
     assert np.all(doc_types[idx] == desired_type), \
@@ -273,7 +282,7 @@ def post_filter_search(
     distances = dists[top_filtered]
 
     print(f"Post-filter top-{top_k} indices: {top_filtered}")
-    print("Types:", doc_types[top_filtered])
+    print("Document types:", DocType.names(doc_types[top_filtered]))  
     print("Distances:", np.around(distances, 3))
 
     # Ensure we have enough matches
@@ -297,7 +306,7 @@ def baseline_raw_search(
     idx = np.argsort(dists)[:top_k]
 
     print(f"Raw top-{top_k} indices: {idx}")
-    print("Document types:", doc_types[idx])
+    print("Document types:", DocType.names(doc_types[idx]))   
     print("Distances:", np.around(dists[idx], 3))
 
     return idx, dists[idx]
@@ -323,23 +332,23 @@ if __name__ == "__main__":
 ```
 **Output**
 ```bash
-=== Raw Search ===
+``=== Raw Search ===
 Raw search without filter
 Raw top-5 indices: [872 449 347 111 261]
-Document types: [2 0 0 0 0]
+Document types: ['TUTORIAL', 'MANUAL', 'MANUAL', 'MANUAL', 'MANUAL']
 Distances: [35.385 35.761 35.939 35.965 36.072]
 === Post-Filter Search (FAQ) ===
 Post-filter search
 Post-filter top-5 indices: [835 494 881 681 912]
-Types: [1 1 1 1 1]
+Document types: ['FAQ', 'FAQ', 'FAQ', 'FAQ', 'FAQ']
 Distances: [36.127 36.222 36.416 36.42  36.47 ]
 Post-filtering success: all top-5 docs match type 1.
 === Filter Fusion Search (FAQ) ===
 Filter fusion search
 Top-5 indices: [835 494 881 681 912]
-Types: [1 1 1 1 1]
+Document types: ['FAQ', 'FAQ', 'FAQ', 'FAQ', 'FAQ']
 Distances: [36.127 36.222 36.416 36.42  36.47 ]
-Filtering success: all top-5 docs match type 1.
+Filtering success: all top-5 docs match type 1.`
 ```
 
 Running the script on this toy RAG corpus clearly illustrates each approach:
