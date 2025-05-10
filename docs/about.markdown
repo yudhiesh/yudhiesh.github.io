@@ -11,10 +11,11 @@ At [Trontal Group](https://trontalgroup.com/), I architect infrastructure for qu
 
 My focus? Making machine learning work reliably at scale - from serving LLMs to building MLOps platforms used by dozens of data scientists.
 
-
 # Teaching & Writing
-When not in the trenches, I share what I've learned. I've taught 1500+ students globally about scaling ML systems and DevOps practices. My writing covers the unvarnished reality of production ML - no hype, just hard-earned lessons.
-
+When not in the trenches, I share what I've learned. I've taught 1500+ students globally about scaling ML systems and DevOps practices. My writing covers the unvarnished reality of production ML - no hype, just hard-earned lessons. Here are the courses I have taught:
+- [LLMs in Production](https://uplimit.com/course/llms-in-production)
+- [MLOps: From Models to Production](https://uplimit.com/course/mlops)
+- [DevOps Crash Course](https://uplimit.com/course/devops-crash-course)
 
 # Feel free to connect with me on:
 1. [GitHub](https://github.com/yudhiesh)
