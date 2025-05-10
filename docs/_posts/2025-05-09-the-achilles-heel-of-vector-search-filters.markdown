@@ -9,8 +9,8 @@ mathjax: true
 
 * [Overview](#overview)
 * [Filtering Strategies in ANN Search](#filtering-strategies-in-ann-search)
-* [Filtering in HNSW (Graph-Based Indexes)](#filtering-in-hnsw-graph-based-indexes)
-* [Filtering in IVF and IVF-PQ (Inverted Indexes)](#filtering-in-ivf-and-ivf-pq-inverted-indexes)
+  * [Filtering in HNSW (Graph-Based Indexes)](#filtering-in-hnsw-graph-based-indexes)
+  * [Filtering in IVF and IVF-PQ (Inverted Indexes)](#filtering-in-ivf-and-ivf-pq-inverted-indexes)
 * [How Vector Databases Support Filtering](#how-vector-databases-support-filtering)
 * [Filtered vs Unfiltered Search Performance](#filtered-vs-unfiltered-search-performance)
 * [Why Filtered Vector Search Is Slower than Traditional Filtering](#why-filtered-vector-search-is-slower-than-traditional-filtering)
@@ -77,6 +77,7 @@ In vector search, a *filter* means we only want results from a subset of vectors
 
 
 # Filtering in HNSW (Graph-Based Indexes)
+![](https://www.pinecone.io/_next/image/?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fvr8gru94%2Fproduction%2Fd6e3a660654d9cb55f7ac137a736539e227296b6-1920x1080.png&w=1920&q=75)
 
 HNSW (Hierarchical Navigable Small World) is a popular graph index for ANN. Vectors are nodes connected by edges; search traverses this graph greedily to find nearest neighbors. Applying filters here poses unique challenges:;
 
@@ -110,6 +111,7 @@ Approaches include:
 
 # Filtering in IVF and IVF-PQ (Inverted Indexes)
 
+![](https://miro.medium.com/v2/resize:fit:877/1*5EyBpJ2H0jQkKFpIDIPhAg.png)
 IVF (Inverted File) clusters data into coarse buckets; IVF-PQ adds vector compression. Filtering here mirrors HNSW strategies but at the cluster level:;
 
 ### Pre-Filtering
