@@ -20,7 +20,7 @@ mathjax: true
 
 
 # Overview
-![Vector Query Filters](https://miro.medium.com/v2/resize:fit:1052/1*v8tX2_MCim8SvZt7a2nceg.png)
+![Vector Query Filters](https://howitworks.wpengine.com/wp-content/uploads/2011/11/Achilles_PD.jpg)
 
 Back in Q2 2024 at my previous role, I set out to answer what should have been a simple question for the whole company:  
 > “Which vector database should I use?”
@@ -348,7 +348,7 @@ Running the script on this toy RAG corpus clearly illustrates each approach:
 - Post-Filter Search retrieves the top-5 nearest neighbors and then discards any non-FAQ documents, yielding only the desired category.
 - Filter Fusion Search appends the category one-hot to embeddings so that a single ANN query directly surfaces only FAQ documents—matching the post-filter results without a separate step.
 
-By concatenating metadata as weighted dimensions, off-the-shelf ANN can perform filtered search in one pass, eliminating extra filter logic which should give us gains in terms of latency/throughput which I spend more time showcasing within another post.
+By concatenating metadata as weighted dimensions, off-the-shelf ANN can perform filtered search in one pass, eliminating extra filter logic which should give us gains in terms of latency/throughput which I spend more time showcasing within a not
 
 # Limitations of Embedding-Level Filter Fusion
 
