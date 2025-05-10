@@ -161,7 +161,7 @@ Pre-ACORN used flat scans for small filters and HNSW with inline sweeping for la
 On 1.2 M vectors (768-dim), unfiltered queries averaged 79 ms a 50 % selective filter dropped latency to 57 ms, and a 1 % filter to 51.6 ms (\~35 % faster) by truly reducing search work.
 
 **Qdrant – Filterable HNSW:**
-Qdrant’s planner picks graph filtering vs brute-force based on “filter cardinality.” Users report negligible recall loss and minimal query-time increase for moderately selective filters, avoiding worst-case slowdowns.
+Qdrant’s planner picks graph filtering vs brute-force based on “filter cardinality.” 
 
 
 # Why Filtered Vector Search Is Slower than Traditional Filtering

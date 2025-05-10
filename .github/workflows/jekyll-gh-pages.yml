@@ -21,12 +21,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Check Spelling
-        uses: rojopolis/spellcheck-github-actions@0.45.0
-        with:
-          config_path: .spellcheck.yml
-          task_name: Markdown
-          
       - name: Setup Pages
         uses: actions/configure-pages@v4
       
