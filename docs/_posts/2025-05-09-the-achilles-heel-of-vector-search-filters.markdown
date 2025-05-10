@@ -5,6 +5,11 @@ date: 2025-05-09 12:00:00 +0000
 tags: ml
 mathjax: true
 ---
+
+<script async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML">
+</script>
+
 # Table of Contents
 
 * [Overview](#overview)
@@ -20,12 +25,12 @@ mathjax: true
 
 
 # Overview
-![Vector Query Filters](https://howitworks.wpengine.com/wp-content/uploads/2011/11/Achilles_PD.jpg)
+![Achilles Heel](https://howitworks.wpengine.com/wp-content/uploads/2011/11/Achilles_PD.jpg)
 
 Back in Q2 2024 at my previous role, I set out to answer what should have been a simple question for the whole company:  
 > “Which vector database should I use?”
 
-What started as a quick investigation turned into a deep dive—presenting my findings in talks (slides) and questioning everything I thought I knew about indexes and search. Along the way, one discovery really blew me away: **unlike a traditional RDBMS, adding a filter to a vector search often *slows* it down**, not speeds it up.
+What started as a quick investigation turned into a deep dive—presenting my findings in talks and [slides](https://drive.google.com/file/d/1Hgfhf1iT-I3G4Q3j2siKj0GSarDFOJD-/view?usp=sharing) and questioning everything I thought I knew about indexes and search. Along the way, one discovery really blew me away: **unlike a traditional RDBMS, adding a filter to a vector search often *slows* it down**, not speeds it up.
 
 In this post, we’ll unpack why **filtered vector search** is the Achilles’ heel of ANN:  
 - **Pre-filtering:** why “filter then search” often collapses back into brute force  
@@ -169,22 +174,35 @@ The core issue is that vector search and metadata filtering are fundamentally di
 4. **Approximation vs Exactness:** ANN trades recall for speed filters demand exact matches, forcing extra work.
 5. **Join-Like Complexity:** Filtering + similarity is akin to a join between vector and metadata indexes, which is inherently more complex.
 
+## Filter Fusion: Encoding Filters into Embeddings
 
-# Filter Fusion: Encoding Filters into Embeddings
+The FAISS team’s [implementation in the Big-ANN Benchmark](https://github.com/harsha-simhadri/big-ann-benchmarks/blob/11e82c28ce8b824a3f1687f293da3ef02a8022a2/neurips23/filter/faiss/README.md) is particularly fascinating: by using unused bits of their 64-bit IDs to encode filter logic directly inside the IVF search loop, they achieved high-throughput filtered search without metadata callbacks or additional steps.
 
-The FAISS team’s implementation in the Big‑ANN Benchmark is particularly fascinating: by using unused bits of their 64‑bit IDs to encode filter logic directly inside the IVF search loop, they achieved high-throughput filtered search without metadata callbacks or additional steps.
+In their setup $$(N = 10^7,\;d = 192)$$, each vector also has sparse metadata in a CSR matrix called
 
-In their setup (N=10^7 vectors, d=192), each vector also has sparse metadata in a CSR matrix called M_meta (N × v, v≈200k). Rather than testing membership with a callback (cache-miss prone binary search on CSR rows), they:
-1. Allocate the low 24 ID bits for the vector index (since log2(N)=24).
-2. Use the remaining 39 high bits to store a bitwise signature—each metadata term j gets a 39-bit random mask S[j].
-3. For each vector i with metadata terms W_i, compute its signature as the bitwise OR of its term masks.
-4. For a query with terms w1 and w2, compute its signature by OR-ing S[w1] and S[w2].
-5. Inside IVF’s tight inner loop, apply a two-instruction check:
-```python
-// skip if any query term is missing
-if (((~sig_i) & sig_q) != 0) continue;
-```
-Vectors lacking any query term are discarded before any distance computation or metadata lookup—ruling out around 80% of negatives in FAISS benchmarks. The clever part: filter fusion happens inside the ANN engine with no changes to the search algorithm itself.
+$$
+M_{\mathrm{meta}}\;\in\;\mathbb{R}^{N\times v},\quad v \approx 2\times 10^5.
+$$
+
+Rather than testing membership with a callback, they:
+
+1. Allocate the low 24 ID bits for the vector index (since $$\log_{2}N \;=\;\log_{2}(10^{7})\;\approx\;23.25\;\longrightarrow\;24\text{ bits}$$
+2. Use the remaining 39 high bits to store a bitwise signature—each metadata term $$j$$ gets a 39-bit random mask $$S_{j}$$.  
+3. For each vector $$i$$ with metadata terms $$W_{i}$$, compute its signature as $$\mathrm{sig}_{i}\;=\;\bigvee_{\,j\in W_{i}}S_{j}.$$
+4. For a query with terms $$w_{1},w_{2}$$, compute its signature by  
+   $$
+     \mathrm{sig}_{q}
+     \;=\;S_{w_{1}}\;\vee\;S_{w_{2}}.
+   $$
+5. Inside IVF’s tight inner loop, discard any vector that doesn’t match *all* query terms:
+
+   $$
+     \texttt{// skip if any query term is missing}\\
+     \quad\texttt{if }(\neg\mathrm{sig}_{i}\;\wedge\;\mathrm{sig}_{q})\neq0
+     \;\texttt{continue;}
+   $$
+
+Vectors lacking any query term are thrown out *before* any distance computation or metadata lookup—ruling out around 80 % of negatives in FAISS’s benchmarks. The clever bit: this “filter fusion” runs entirely inside the ANN engine, with **no changes** to the search algorithm itself.
 
 Given the difficulties above, an intriguing solution is **Filter Fusion** – essentially, bake the filter criteria into the vector representation itself based on how the FAISS team did so. The idea is to avoid explicit filtering altogether by designing embeddings (or distance functions) such that an item that doesn’t meet the filter would never appear in the top results in the first place.
 
@@ -192,14 +210,78 @@ Imagine if for each vector, we could append a small descriptor of its metadata, 
 
 **Motivation & Intuition**: If the vector space can incorporate both content and metadata, then a single nearest neighbor search can handle both aspects. This eliminates the need for separate filtering logic and ensures zero overhead for applying filters – the math of similarity takes care of it. It also potentially means we can use off-the-shelf ANN methods without modification, because we’re just searching in a slightly higher-dimensional space (original embedding + metadata encoding).
 
-One simple approach to filter fusion is vector concatenation. For example, say each data vector has a 256 dimension and we have a categorical filter with 10 possible values. We can allocate an extra 10 dimensions (a one-hot encoding for the category). A vector for an item in category 3 would have those extra 10 dims all 0 except a 1 in position 3. A query that requires category 3 would similarly have that one-hot in its vector. If we use standard Euclidean or cosine distance on the combined (266-dim) vectors, a candidate from a different category will have a large distance on the metadata dimensions, likely pushing it out of the top results. We can even exaggerate this by weighting the metadata dimensions more strongly (e.g. set the one-hot to some large value) so that any category mismatch dominates the distance. In effect, the nearest neighbor search “prefers” vectors of the same category because others are far away in those extra dimensions.
+One simple approach to filter fusion is vector concatenation, let each document have:
+
+- an embedding $$x_i \in \mathbb{R}^d$$  
+- a type label $$k_i \in \{1,\dots,T\}$$  
+
+Define the metadata one-hot vector $$m_i = e_{k_i} \;\in\; \{0,1\}^T$$ and choose a metadata weight $$\alpha > 0$$.
+Then augment each document and the query as
+
+$$
+\tilde x_i = 
+\begin{bmatrix}
+x_i \\[6pt]
+\alpha\,m_i
+\end{bmatrix}
+\;\in\;\mathbb{R}^{d+T},
+\qquad
+\tilde q =
+\begin{bmatrix}
+q \\[6pt]
+\alpha\,e_c
+\end{bmatrix},
+$$
+
+{% raw %}
+**Remark:** In practice most ANN libraries use Cosine Similarity rather than Euclidean distance. If you $$\ell_2$$-normalize each augmented vector $$\tilde x_i$$ and the query $$\tilde q$$, then ranking by Cosine Similarity is equivalent to ranking by Euclidean distance, so the same filter-fusion trick applies directly.
+
+
+$$
+\bigl\lVert \tilde x_i - \tilde q \bigr\rVert^2
+= 
+\underbrace{\lVert x_i - q\rVert^2}_{\text{content term}}
+\;+\;\alpha^2\,
+\underbrace{\lVert m_i - e_c\rVert^2}_{%
+  \substack{0\;\text{if}\;k_i=c,\\2\;\text{otherwise}}
+}\,.
+$$
+
+Since
+
+$$
+\lVert m_i - e_c\rVert^2
+=
+\begin{cases}
+0, & k_i = c,\\
+2, & k_i \neq c,
+\end{cases}
+$$
+
+any non-matching category incurs an extra penalty of $$2\alpha^2$$. By choosing $$\alpha$$ large enough, the top-$$k$$ nearest neighbors will all satisfy $$k_i=c$$, so one ANN query both retrieves and filters in one pass.
+{% endraw %}
+
+
+In simple terms lets say each data vector has a 256 dimension and we have a categorical filter with 10 possible values. We can allocate an extra 10 dimensions (a one-hot encoding for the category). A vector for an item in category 3 would have those extra 10 dims all 0 except a 1 in position 3. A query that requires category 3 would similarly have that one-hot in its vector. If we use standard Euclidean or cosine distance on the combined (266-dim) vectors, a candidate from a different category will have a large distance on the metadata dimensions, likely pushing it out of the top results. We can even exaggerate this by weighting the metadata dimensions more strongly (e.g. set the one-hot to some large value) so that any category mismatch dominates the distance. In effect, the nearest neighbor search “prefers” vectors of the same category because others are far away in those extra dimensions.
 
 
 **Filter Fusion in Practice (RAG Retrieval)**: Imagine a retrieval scenario with 1,000 mixed documents—manuals, FAQs, and tutorials—where only FAQs should be returned. By appending a high-weight one-hot slice that encodes each document’s type (and the query’s desired type) to the embedding, a single ANN search naturally ranks only FAQs at the top, removing the need for any separate filter step.
+
+**Maths Symbol to Code Variable**
+
+| Symbol   | Code variable                     |
+| -------- | --------------------------------- |
+| $$x_i$$    | `doc_embeds[i]`                   |
+| $$m_i$$    | `type_onehot[i] / α`              |
+| $$q$$      | `query_embed`                     |
+| $$e_c$$    | `np.eye(num_types)[desired_type]` |
+| $$\alpha$$ | `metadata_weight`                 |
+
 ```python
 import numpy as np
 from enum import IntEnum
 from typing import Sequence
+
 
 class DocType(IntEnum):
     MANUAL   = 0
@@ -332,7 +414,7 @@ if __name__ == "__main__":
 ```
 **Output**
 ```bash
-``=== Raw Search ===
+=== Raw Search ===
 Raw search without filter
 Raw top-5 indices: [872 449 347 111 261]
 Document types: ['TUTORIAL', 'MANUAL', 'MANUAL', 'MANUAL', 'MANUAL']
@@ -357,7 +439,7 @@ Running the script on this toy RAG corpus clearly illustrates each approach:
 - Post-Filter Search retrieves the top-5 nearest neighbors and then discards any non-FAQ documents, yielding only the desired category.
 - Filter Fusion Search appends the category one-hot to embeddings so that a single ANN query directly surfaces only FAQ documents—matching the post-filter results without a separate step.
 
-By concatenating metadata as weighted dimensions, off-the-shelf ANN can perform filtered search in one pass, eliminating extra filter logic which should give us gains in terms of latency/throughput which I spend more time showcasing within a not
+By concatenating metadata as weighted dimensions, off-the-shelf ANN can perform filtered search in one pass, eliminating extra filter logic which should give us gains in terms of latency/throughput which I will save for a separate blog post.
 
 # Limitations of Embedding-Level Filter Fusion
 
@@ -376,4 +458,11 @@ While embedding-level filter fusion streamlines retrieval, it has several practi
 - **Interpretability and maintenance**: Mixing metadata with content dimensions makes embeddings harder to interpret and debug. Any change in metadata schema often requires re-indexing or modifying the fusion logic.
 
 # References
-
+- [Filtered Vector Search: The Importance and Behind the Scenes](https://myscale.com/blog/filtered-vector-search-in-myscale/)
+- [The Missing Where Clause in Vector Search](https://www.pinecone.io/learn/vector-search-filtering/#:~:text=The%20first%20approach%20we%20could,that%20satisfies%20our%20filter%20conditions)
+- [FAISS Paper](https://users.cs.utah.edu/~pandey/courses/cs6530/fall24/papers/vectordb/FAISS.pdf)
+- [How we speed up filtered vector search with ACORN](https://weaviate.io/blog/speed-up-filtered-vector-search)
+- [A Complete Guide to Filtering in Vector Search - Qdrant](https://qdrant.tech/articles/vector-search-filtering/)
+- [Big ANN: NeurIPS 2023](https://arxiv.org/html/2409.17424v1)
+- [Filtering Data in OpenSearch](https://opensearch.org/docs/latest/vector-search/filter-search-knn/index/#:~:text=To%20refine%20vector%20search%20results%2C,one%20of%20the%20following%20methods)
+- [Efficient filtering in OpenSearch vector engine](https://opensearch.org/blog/efficient-filters-in-knn/)
