@@ -11,7 +11,9 @@ mathjax: true
 
 # Table of Contents
 * [Introduction](#introudction)
-* [What are LLM Guardrails?](#what-are-llm-guardrails)
+* [Guardrails](#guardrails)
+  * [What are LLM Guardrails?](#what-are-llm-guardrails)
+* [References](#references)
 
 # Introduction
 
@@ -39,11 +41,11 @@ Users will always probe the boundaries, test the limits, and find creative ways 
 
 This is why every production LLM deployment needs its own Cerberus — a multi-layered defense system that stands guard before prompts ever reach your frontier model.
 
-Here's a version that matches your tone better:
+# Guardrails
 
 ## What Are LLM Guardrails?
 
-Think of guardrails as your LLM's personal security team—they're the difference between leaving your front door wide open and having actual protection in place.
+Think of safeguards/guardrails as your LLM's personal security team—they're the difference between leaving your front door wide open and having actual protection in place.
 
 ![LLM Guardrails](https://raw.githubusercontent.com/guardrails-ai/guardrails/main/docs/img/with_and_without_guardrails.svg)
 
@@ -55,3 +57,38 @@ Think of guardrails as your LLM's personal security team—they're the differenc
 
 2. **Output Guards** catch the problems your LLM creates. Even the best models hallucinate, generate inappropriate content, or accidentally mention your competitors. Output guards are there to make sure those mistakes never see daylight.
 
+## LLM Guardrails Requirements
+
+### Functional
+
+These are the core jobs your guardrails need to handle:
+
+- **Input Filtering** - Block problematic content before it reaches your LLM. This includes jailbreak attempts, PII that creates compliance issues, and off-topic requests that waste resources.
+
+- **Output Validation** - Check LLM responses before users see them. Models can hallucinate, generate inappropriate content, or mention competitors when they shouldn't.
+
+- **Content Moderation** - Enforce your business rules and brand guidelines automatically. If your support bot starts giving legal advice, that's a problem.
+
+- **Format Checking** - For structured outputs like JSON, ensure the response is actually parseable. Malformed responses break downstream systems.
+
+- **Threat Detection** - Identify prompt injections, conversation hijacking, and policy violations in real-time.
+
+### Non-Functional
+
+- **Latency** - Guardrails add processing time. Users expect fast responses, so you need to run checks efficiently, often in parallel with your main LLM call.
+
+- **Accuracy** - Balance false positives (blocking good requests) with false negatives (missing actual threats). This requires proper evaluation and threshold tuning.
+
+- **Cost** - Each guardrail adds computational overhead. You need to optimize between expensive models that are accurate and cheaper models that are fast enough.
+
+- **Scale** - Your guardrails must handle production traffic without becoming bottlenecks. This means efficient architecture and resource management.
+
+- **Maintainability** - Threats evolve constantly. Your system needs to be easily updated as new attack patterns emerge.
+
+## Designing Guardrails
+
+![Image]({{ site.baseurl }}/images/llmguardrailstradeoff.png)
+
+# References
+- [Guardrails AI](https://www.guardrailsai.com/docs)
+- [How to use Guardrails from OpenAI](https://cookbook.openai.com/examples/how_to_use_guardrails)
