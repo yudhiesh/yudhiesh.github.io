@@ -13,6 +13,10 @@ mathjax: true
 * [Introduction](#introudction)
 * [Guardrails](#guardrails)
   * [What are LLM Guardrails?](#what-are-llm-guardrails)
+    * [LLM Guardrails Requirements](#llm-guardrail-requirements)
+      * [Functional](#functinal)
+      * [Non-Functional](#non-functinal)
+    * [Designing Guardrails](#designing-guardrails)
 * [References](#references)
 
 # Introduction
