@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Safeguards for Large Language Models"
+title: "Cerberus: Safeguards for Large Language Models"
 date: 2025-05-29 16:33:48 +0000
 mathjax: true
 ---
@@ -11,6 +11,7 @@ mathjax: true
 
 # Table of Contents
 * [Introduction](#introudction)
+* [What are LLM Guardrails?](#what-are-llm-guardrails)
 
 # Introduction
 
@@ -37,3 +38,20 @@ What started as an exciting product launch quickly becomes a high-stakes game of
 Users will always probe the boundaries, test the limits, and find creative ways to extract unintended behaviors. Some are driven by curiosity, others by malicious intent, but the result is the same: **without robust safeguards, even the most carefully trained models become vulnerable to adversarial manipulation.**
 
 This is why every production LLM deployment needs its own Cerberus — a multi-layered defense system that stands guard before prompts ever reach your frontier model.
+
+Here's a version that matches your tone better:
+
+## What Are LLM Guardrails?
+
+Think of guardrails as your LLM's personal security team—they're the difference between leaving your front door wide open and having actual protection in place.
+
+![LLM Guardrails](https://raw.githubusercontent.com/guardrails-ai/guardrails/main/docs/img/with_and_without_guardrails.svg)
+
+**Without guardrails**, you're running a completely exposed system. User input hits your LLM directly, whatever comes out goes straight back to the user, and you're basically crossing your fingers that nothing goes wrong. Spoiler alert: something will go wrong.
+
+**With guardrails**, you get two layers of protection that actually matter:
+
+1. **Input Guards** are your first line of defense—they scan every prompt before it gets anywhere near your expensive frontier model. They're looking for the stuff that'll ruin your day: PII that could get you sued, off-topic garbage that wastes compute, and those clever jailbreak attempts that think they're smarter than your safety measures.
+
+2. **Output Guards** catch the problems your LLM creates. Even the best models hallucinate, generate inappropriate content, or accidentally mention your competitors. Output guards are there to make sure those mistakes never see daylight.
+
