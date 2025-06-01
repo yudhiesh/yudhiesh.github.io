@@ -39,11 +39,25 @@ Within days, social media explodes with screenshots of users who have found crea
   <figcaption><em>Screenshot of conversation with ChatGPT attempting to provide nuclear weapons information</em></figcaption>
 </figure>
 
-What started as an exciting product launch quickly becomes a high-stakes game of digital whack-a-mole—every safety patch seems to spawn three new attack vectors. This wasn't just a ChatGPT problem; it was an inevitable consequence of deploying powerful AI systems at scale.
+What started as an exciting product launch quickly becomes a high-stakes game of digital whack-a-mole—every safety patch seems to spawn three new attack vectors. Users will always probe the boundaries, test the limits, and find creative ways to extract unintended behaviors. Some are driven by curiosity, others by malicious intent, but the result is the same: **without robust safeguards, even the most carefully trained models become vulnerable to adversarial manipulation.**
 
-Users will always probe the boundaries, test the limits, and find creative ways to extract unintended behaviors. Some are driven by curiosity, others by malicious intent, but the result is the same: **without robust safeguards, even the most carefully trained models become vulnerable to adversarial manipulation.**
+Even those who self-host their own LLM can't run away from this, as moving from a LLM Provider API such as OpenAI, Anthropic, etc. you don't just use their model's, you use the **entire system** they built as a whole which has their own set of safeguards in place. 
 
-This is why every production LLM deployment needs its own Cerberus — a multi-layered defense system that stands guard before prompts ever reach your frontier model.
+Below is an image of my own prompt injection done on the chatbot from the National AI Office(NAIO) of Malaysia's Bot which is powered by [Nous](https://nous.my/).
+
+<div align="center">
+<figure>
+  <img src="https://scontent.fkul10-1.fna.fbcdn.net/v/t39.30808-6/499759844_24025074557116322_8618258225287360577_n.jpg?stp=dst-jpg_s1080x2048_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_eui2=AeEQjmkYaMfkwdQ9EB87AUbt0koBLZkqoxvSSgEtmSqjG8aManLNa6PkQDRHR89Pqt_cHM-_KVLjHwefOGXnzT2_&_nc_ohc=2BmmwFXtpTYQ7kNvwHjJrpR&_nc_oc=Adk_JtmCTMpX-CqU3y6zlf_64SLz7dE6dAOvtNzK6u7PLHjTx6AH4hLxqFDnaCcWV7nOajZG465XM51eXX0I7oaV&_nc_zt=23&_nc_ht=scontent.fkul10-1.fna&_nc_gid=F8M6zgs5ks1rL6lUcb_Wrg&oh=00_AfINovEa9M2Sg9lpQ0NWIILcKgSBD_fiEDtNwDn9dq5jAg&oe=68418D5D" alt="Prompt Injection on Malaysia's NAIO Bot" height="800"/>
+  <figcaption><em>Prompt Injection on The National AI Office(NAIO) of Malaysia's Bot</em></figcaption>
+</figure>
+</div>
+
+Anthropic for example, has an entire team dedicated to this issue called **Safeguards** which they are aggressively hiring for:
+
+![Anthropic Safeguards Hiring](https://i.postimg.cc/XXSKVnDT/Screenshot-2025-06-01-at-12-05-50.png)
+
+This is why every production LLM deployment needs its own **Cerberus** — a multi-layered defense system that stands guard before prompts ever reach your frontier model.
+> NOTE: Guardrails apply to inputs and outputs as detailed in the next section but our main focus will be on input guardrails.
 
 # Guardrails
 
