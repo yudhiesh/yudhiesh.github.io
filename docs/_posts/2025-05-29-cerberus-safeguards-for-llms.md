@@ -55,6 +55,8 @@ Below is an image of my own prompt injection done on the chatbot from the Nation
 Anthropic for example, has an entire team dedicated to this issue called **Safeguards** which they are aggressively hiring for:
 
 ![Anthropic Safeguards Hiring](https://i.postimg.cc/XXSKVnDT/Screenshot-2025-06-01-at-12-05-50.png)
+Diving into the Machine Learning Engineer job description you can see the following tasks which do talk about building ML models to detect unwanted behaviors. 
+![Machine Learning Engineer Job Description](https://i.postimg.cc/tRDPZFvm/Screenshot-2025-06-01-at-12-17-49.png)
 
 This is why every production LLM deployment needs its own **Cerberus** — a multi-layered defense system that stands guard before prompts ever reach your frontier model.
 > NOTE: Guardrails apply to inputs and outputs as detailed in the next section but our main focus will be on input guardrails.
@@ -67,7 +69,9 @@ Think of safeguards/guardrails as your LLM's personal security team—they're th
 
 ![LLM Guardrails](https://raw.githubusercontent.com/guardrails-ai/guardrails/main/docs/img/with_and_without_guardrails.svg)
 
-**Without guardrails**, you're running a completely exposed system. User input hits your LLM directly, whatever comes out goes straight back to the user, and you're basically crossing your fingers that nothing goes wrong. Spoiler alert: something will go wrong.
+**Without guardrails**, you're running a completely exposed system. User input hits your LLM directly, whatever comes out goes straight back to the user, and you're basically crossing your fingers that nothing goes wrong. 
+
+> *Spoiler alert: something will go wrong*.
 
 **With guardrails**, you get two layers of protection that actually matter:
 
