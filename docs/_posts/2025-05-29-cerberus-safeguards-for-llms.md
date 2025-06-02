@@ -118,10 +118,22 @@ These are the core jobs your guardrails need to handle:
 
 ## LLM Inference using Safeguards
 
-![LLM Inference Workflow](https://www.omrimallis.com/assets/llama_cpp_high_level_flow.png.webp)
+<div align="center">
+<figure>
+  <img src="https://www.omrimallis.com/assets/llama_cpp_high_level_flow.png.webp" alt="LLM Inference Workflow" />
+  <figcaption><em>LLM Inference Workflow</em></figcaption>
+</figure>
+</div>
+
 When you type a prompt into the ChatGPT web UI and hit “Send,” your text is sent to the inference server. The server breaks your input into tokens, turns each token into a numeric embedding, and runs those embeddings through a stack of transformer layers to build a contextual representation. At each step, it computes scores (logits) for every possible next token, picks one based on those scores, appends it to the output, and repeats until a stop token is produced. Finally, the completed response is sent back to the UI and displayed on your screen.
 
-![LLM Safeguards Workflow](https://i.postimg.cc/gYb0nTdJ/Screenshot-2025-06-01-at-12-55-21.png)
+<div align="center">
+<figure>
+  <img src="https://i.postimg.cc/gYb0nTdJ/Screenshot-2025-06-01-at-12-55-21.png" alt="LLM Safeguards in Inference" />
+  <figcaption><em>LLM Safeguards in Inference</em></figcaption>
+</figure>
+</div>
+
 
 With LLM Safeguards you would be having a separate service to determine beforehand whether the input prompt is safe or unsafe. From there the simplest approach would be to return a placeholder **"Sorry I am unable to answer that question!"**. More advanced systems could even send the response to a smaller and faster LLM in order to return a more personalized response.
 
