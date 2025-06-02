@@ -17,6 +17,13 @@ mathjax: true
       * [Functional](#functinal)
       * [Non-Functional](#non-functinal)
     * [Designing Guardrails](#designing-guardrails)
+  * [LLM Inference using Safeguards](#llm-inference-using-safeguards)
+  * [Evaluating Safeguards](#evaluating-safeguards)
+  * [Building Safeguards](#building-safeguards)
+      * [Heuristics](#heuristics)
+      * [Machine Learning Model](#machine-learning-model)
+      * [LLMs-as-a-Safeguard](#llms--as--a--safeguard)
+  * [Comparing Guardrails](#comparing-guardrails)
 * [References](#references)
 
 # Introduction
@@ -34,10 +41,12 @@ Picture this: you're working at OpenAI and just launched ChatGPT around late 202
 
 Within days, social media explodes with screenshots of users who have found creative ways to circumvent the model's safety guidelines. They're sharing "" prompts that trick the AI into roleplaying as unrestricted chatbots, providing inappropriate content, or bypassing ethical constraints through clever prompt engineering.
 
+<div align="center">
 <figure>
   <img src="https://cms.outrider.org/sites/default/files/styles/fixed_width_sm/public/2023-01/Screen%20Shot%202022-12-13%20at%202.58.06%20PM.png?itok=ZphHMo23" alt="ChatGPT Nuclear Weapons Guide" />
   <figcaption><em>Screenshot of conversation with ChatGPT attempting to provide nuclear weapons information</em></figcaption>
 </figure>
+</div>
 
 What started as an exciting product launch quickly becomes a high-stakes game of digital whack-a-mole—every safety patch seems to spawn three new attack vectors. Users will always probe the boundaries, test the limits, and find creative ways to extract unintended behaviors. Some are driven by curiosity, others by malicious intent, but the result is the same: **without robust safeguards, even the most carefully trained models become vulnerable to adversarial manipulation.**
 
@@ -61,13 +70,13 @@ Diving into the Machine Learning Engineer job description you can see the follow
 This is why every production LLM deployment needs its own **Cerberus** — a multi-layered defense system that stands guard before prompts ever reach your frontier model.
 > NOTE: Guardrails apply to inputs and outputs as detailed in the next section but our main focus will be on input guardrails.
 
-# Guardrails
+# Safeguards
 
-## What Are LLM Guardrails?
+## What Are LLM Safeguards?
 
 Think of safeguards/guardrails as your LLM's personal security team—they're the difference between leaving your front door wide open and having actual protection in place.
 
-![LLM Guardrails](https://raw.githubusercontent.com/guardrails-ai/guardrails/main/docs/img/with_and_without_guardrails.svg)
+![LLM Safeguards](https://raw.githubusercontent.com/guardrails-ai/guardrails/main/docs/img/with_and_without_guardrails.svg)
 
 **Without guardrails**, you're running a completely exposed system. User input hits your LLM directly, whatever comes out goes straight back to the user, and you're basically crossing your fingers that nothing goes wrong. 
 
@@ -79,7 +88,7 @@ Think of safeguards/guardrails as your LLM's personal security team—they're th
 
 2. **Output Guards** catch the problems your LLM creates. Even the best models hallucinate, generate inappropriate content, or accidentally mention your competitors. Output guards are there to make sure those mistakes never see daylight.
 
-## LLM Guardrails Requirements
+## LLM Safeguards Requirements
 
 ### Functional
 
@@ -107,9 +116,36 @@ These are the core jobs your guardrails need to handle:
 
 - **Maintainability** - Threats evolve constantly. Your system needs to be easily updated as new attack patterns emerge.
 
-## Designing Guardrails
+## LLM Inference using Safeguards
 
-![Image]({{ site.baseurl }}/images/llmguardrailstradeoff.png)
+![LLM Inference Workflow](https://www.omrimallis.com/assets/llama_cpp_high_level_flow.png.webp)
+When you type a prompt into the ChatGPT web UI and hit “Send,” your text is sent to the inference server. The server breaks your input into tokens, turns each token into a numeric embedding, and runs those embeddings through a stack of transformer layers to build a contextual representation. At each step, it computes scores (logits) for every possible next token, picks one based on those scores, appends it to the output, and repeats until a stop token is produced. Finally, the completed response is sent back to the UI and displayed on your screen.
+
+![LLM Safeguards Workflow](https://i.postimg.cc/gYb0nTdJ/Screenshot-2025-06-01-at-12-55-21.png)
+
+With LLM Safeguards you would be having a separate service to determine beforehand whether the input prompt is safe or unsafe. From there the simplest approach would be to return a placeholder **"Sorry I am unable to answer that question!"**. More advanced systems could even send the response to a smaller and faster LLM in order to return a more personalized response.
+
+## Evaluating Safeguards
+
+
+## Building Safeguards
+
+
+<div align="center">
+<figure>
+  <img src="https://i.postimg.cc/brjBjCmN/Screenshot-2025-06-01-at-13-20-02.png" alt="Safeguards Tradeoff Chart" />
+  <figcaption><em>Safeguards Tradeoff Chart</em></figcaption>
+</figure>
+</div>
+
+### Heuristics
+
+### Machine Learning Model
+
+### LLM-As-A-Guardrail
+
+## Comparing Guardrails
+
 
 # References
 - [Guardrails AI](https://www.guardrailsai.com/docs)
