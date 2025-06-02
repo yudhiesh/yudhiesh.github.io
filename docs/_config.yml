@@ -33,11 +33,17 @@ kramdown:
   mathjax:
     path: https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML
 # Build settings
-theme: minima
+remote_theme: jekyll/minima@0b7ca6bbdb782a646f8e7b78b1a29fd5032ad4d3
 plugins:
+  - jekyll-remote-theme
   - jekyll-feed
   - jekyll-seo-tag
+<<<<<<< HEAD
   - jekyll-sitemap
+=======
+minima:
+  skin: dark
+>>>>>>> 9984252 (feat: fix seo issue)
 # Exclude from processing.
 # The following items will not be processed, by default.
 # Any item listed under the `exclude:` key here will be automatically added to
