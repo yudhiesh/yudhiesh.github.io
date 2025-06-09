@@ -158,6 +158,13 @@ With LLM Safeguards you would be having a separate service to determine beforeha
 
 ## Comparing Guardrails
 
+<div style="width: 100%; overflow-x: auto; border: 1px solid #ddd; border-radius: 4px;">
+<iframe src="{{ '/assets/eda.html' | relative_url }}" 
+        width="1200px" 
+        height="1000px" 
+        frameborder="0">
+</iframe>
+</div>
 
 # References
 - [Guardrails AI](https://www.guardrailsai.com/docs)
