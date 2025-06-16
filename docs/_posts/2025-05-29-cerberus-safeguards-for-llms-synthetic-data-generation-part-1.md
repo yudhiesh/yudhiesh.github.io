@@ -23,11 +23,11 @@ mathjax: true
       * [Non-Functional](#non-functinal)
     * [Designing Guardrails](#designing-guardrails)
   * [LLM Inference using Safeguards](#llm-inference-using-safeguards)
-  * [Evaluating Safeguards](#evaluating-safeguards)
   * [Building Safeguards](#building-safeguards)
 * [Synthetic Data Generation](#synthetic-data-generation)
-  * [The Challenge: Imbalaned Data](#the-challenge-imbalaned-data)
+  * [The Challenge: Imbalanced Data](#the-challenge-imbalanced-data)
   * [Synthetic Data Generation Flow](#synthetic-data-generation-flow)
+  * [Verifying Synthetic Data using G-Eval](#verifying-synthetic-data-using-g-eval)
   * [Exploratory Data Analysis on Synthetic Data](#exploratory-data-analysis-on-synthetic-data)
 * [References](#references)
 
@@ -163,8 +163,6 @@ Before we can build and evaluate these safeguards, we need ground truth data—a
 
 To address this challenge, we'll leverage LLMs themselves to generate our training data. This process, known as [Synthetic Data Generation](https://aws.amazon.com/what-is/synthetic-data/), allows us to create large-scale, diverse datasets with accurate safety labels while maintaining control over the distribution and complexity of examples.
 
-Based on your implementation details, here's a refined section about your synthetic data generation process:
-
 # Synthetic Data Generation
 
 Synthetic data generation leverages large language models to create realistic, labeled datasets for training safety classifiers. This approach offers a powerful solution to commonly faced problems: the availability of high-quality, diverse, and privacy-compliant data. OpenAI has a great blog showcasing how you can build synthetic data using their APIs [here](https://cookbook.openai.com/examples/sdg1).
@@ -243,35 +241,44 @@ flowchart TB
 
 
 1. **Prompt Template Design**
-   - Created separate prompt templates for safe contexts (`v2_safe_contexts.txt`) and unsafe contexts (`v2_unsafe_contexts.txt`)
+   - Created separate prompt templates for safe contexts ([v2_safe_contexts.txt](https://github.com/yudhiesh/cerberus/blob/master/data_generation/v2_safe_contexts.txt)) and unsafe contexts ([v2_unsafe_contexts.txt](https://github.com/yudhiesh/cerberus/blob/master/data_generation/v2_unsafe_contexts.txt))
    - Each template covers different safety categories and edge cases
    - Templates designed to generate realistic, contextually appropriate examples
 
 2. **Controlled Generation**
-   - Generated 1,000 examples per category
+   - Generated 1,000 examples per category ([generate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/generate.py))
    - Maintained 90/10 split (safe/unsafe) to reflect real-world distribution
    - This realistic ratio prevents the model from becoming overly sensitive
 
 3. **Semantic Deduplication**
-   - Implemented SemHash deduplication (`deduplicate.py`) to remove semantically similar examples
+   - Implemented SemHash deduplication ([deduplicate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/deduplicate.py)) to remove semantically similar examples
    - Ensures diversity in the training data
    - Prevents model overfitting on repeated patterns
 
 4. **G-Eval Quality Validation**
-   - Used a second LLM to evaluate each generated example (`evaluate.py`)
+   - Used a second LLM to evaluate each generated example ([evaluate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/evaluate.py))
    - The evaluator LLM independently assessed whether it agreed with the assigned label
    - This cross-validation catches potential mislabeling from the generation phase
 
+
 5. **Human-in-the-Loop Annotation**
    - When G-Eval disagreed with original labels, flagged examples for human review
-   - Used Argilla for efficient annotation workflow (`annotate.py`)
+   - Used Argilla for efficient annotation workflow ([annotate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/annotate.py))
    - Hand-annotated approximately 20 examples where LLM validation showed disagreement
    - Human judgment served as the final arbiter for edge cases
 
 6. **Dataset Finalization**
-   - Combined original labels with human annotations
+   - Combined original labels with human annotations ([dataset_preprocess.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/dataset_preprocess.py))
    - Exported final dataset to Hugging Face Datasets for easy distribution
    - Maintained full provenance of label sources (generated vs. human-annotated)
+
+## Verifying Synthetic Data using G-Eval
+  <div align="center">
+    <figure>
+    <img src="https://github.com/yudhiesh/cerberus/blob/master/data_generation/data/v2_synthetic_1000_deduplicated_evaluation_confusion_matrix.png?raw=true" alt="Confusion Matrix of Base Model vs G-Eval Results" width="400" />
+    <figcaption><em>Confusion Matrix of the Base Model vs G-Eval Model Results</em></figcaption>
+    </figure>
+  </div>
 
 ## Exploratory Data Analysis on Synthetic Data
 
