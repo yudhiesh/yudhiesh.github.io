@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Cerberus: Safeguards for Large Language Models"
+title: "Cerberus: Safeguards for LLMs - Part 1: Synthetic Data Generation"
 date: 2025-05-29 16:33:48 +0000
 mathjax: true
 ---
@@ -18,12 +18,8 @@ mathjax: true
       * [Non-Functional](#non-functinal)
     * [Designing Guardrails](#designing-guardrails)
   * [LLM Inference using Safeguards](#llm-inference-using-safeguards)
-  * [Evaluating Safeguards](#evaluating-safeguards)
   * [Building Safeguards](#building-safeguards)
-      * [Heuristics](#heuristics)
-      * [Machine Learning Model](#machine-learning-model)
-      * [LLMs-as-a-Safeguard](#llms--as--a--safeguard)
-  * [Comparing Guardrails](#comparing-guardrails)
+  * [Synthetic Data Generation](#synthetic-data-generation)
 * [References](#references)
 
 # Introduction
@@ -73,6 +69,8 @@ This is why every production LLM deployment needs its own **Cerberus** — a mul
 # Safeguards
 
 ## What Are LLM Safeguards?
+
+> Safeguards and Guardrails are used interchangeably
 
 Think of safeguards/guardrails as your LLM's personal security team—they're the difference between leaving your front door wide open and having actual protection in place.
 
@@ -137,7 +135,12 @@ When you type a prompt into the ChatGPT web UI and hit “Send,” your text is 
 
 With LLM Safeguards you would be having a separate service to determine beforehand whether the input prompt is safe or unsafe. From there the simplest approach would be to return a placeholder **"Sorry I am unable to answer that question!"**. More advanced systems could even send the response to a smaller and faster LLM in order to return a more personalized response.
 
-## Evaluating Safeguards
+<div align="center">
+<figure>
+  <img src="https://i.postimg.cc/9MhRrPcX/Screenshot-2025-06-02-at-17-01-12.png" alt="Safeguards blocking messages in ChatGPT" />
+  <figcaption><em>Safeguards blocking messages in ChatGPT</em></figcaption>
+</figure>
+</div>
 
 
 ## Building Safeguards
@@ -150,15 +153,126 @@ With LLM Safeguards you would be having a separate service to determine beforeha
 </figure>
 </div>
 
-### Heuristics
+In a general sense, the three techniques we have for building safeguards can be broken down into the following characteristics:
 
-### Machine Learning Model
+| Technique | Speed/Cost | Accuracy | Description | Use Case |
+|-----------|------------|----------|-------------|----------|
+| **Heuristics** | Fast/Cheap | Low | Rule-based classification using keywords, patterns, or regex. Simple if-then logic for safety detection. | Quick prototyping, baseline systems, or when computational resources are extremely limited |
+| **Small ML Models** | Fast/Cheap | High | Lightweight, specialized models (e.g., DistilBERT, small classifiers) trained specifically for safety classification | Production systems, large-scale synthetic data generation, real-time applications |
+| **LLM-as-a-Guardrail** | Slow/Expensive | High | Large language models (GPT-4, Claude, etc.) used to evaluate and classify prompt safety with nuanced understanding | High-stakes decisions, complex edge cases, quality validation of synthetic datasets |
 
-### LLM-As-A-Guardrail
+Before we can build and evaluate these safeguards, we need ground truth data—a collection of prompts labeled as either safe or unsafe. However, obtaining high-quality safety datasets poses several challenges: they often contain sensitive content, require careful human annotation, and must cover diverse edge cases. 
 
-## Comparing Guardrails
+To address this challenge, we'll leverage LLMs themselves to generate our training data. This process, known as [Synthetic Data Generation](https://aws.amazon.com/what-is/synthetic-data/), allows us to create large-scale, diverse datasets with accurate safety labels while maintaining control over the distribution and complexity of examples.
 
+## Synthetic Data Generation
+
+### How Synthetic Data Generation Works
+
+Synthetic data generation leverages large language models to create realistic, labeled datasets for training safety classifiers. This approach offers a powerful solution to commonly faced problems: the availability of high-quality, diverse, and privacy-compliant data.
+
+### The Challenge: Imbalanced Safety Data
+
+In real-world scenarios, safety classification data is naturally imbalanced—typically 90-95% of prompts are safe, while only a small percentage contain harmful content. This imbalance creates critical challenges:
+
+- **Model Bias**: Classifiers tend to over-predict the majority class (safe)
+- **Poor Recall**: Models may miss many unsafe prompts, creating safety risks
+- **Limited Edge Cases**: Rare but critical safety violations are underrepresented
+
+## The Cerberus Synthetic Data Generation Process
+
+### Implementation Details:
+
+```mermaid
+flowchart TB
+    A["v2_safe_contexts.txt<br>Safe Prompt Templates"] --> C["LLM Generation Engine<br>GPT-4/Claude"]
+    B["v2_unsafe_contexts.txt<br>Unsafe Prompt Templates"] --> C
+    C --> D["Generate 1,000 Examples<br>per Category"]
+    D --> E["90% Safe Examples<br>~900 samples"] & F["10% Unsafe Examples<br>~100 samples"]
+    E --> G["Combined Raw Dataset<br>Labels: safe/unsafe"]
+    F --> G
+    G --> H["SemHash Deduplication<br>deduplicate.py"]
+    H --> I["Remove Semantically<br>Similar Examples"]
+    I --> J["Deduplicated Dataset"]
+    J --> K["G-Eval Validation<br>evaluate.py"]
+    K --> L["Secondary LLM<br>Label Verification"]
+    L --> M{"LLM Agrees<br>with Label?"}
+    M -- Yes --> N["Validated Examples<br>Keep Original Label"]
+    M -- No --> O["Flagged Examples<br>Need Human Review"]
+    O --> P["Argilla Platform<br>annotate.py"]
+    P --> Q["Human Annotators<br>~20 examples reviewed"]
+    Q --> R["Corrected Labels"]
+    N --> S["Dataset Assembly"]
+    R --> S
+    S --> U["Final Synthetic Dataset<br>Hugging Face Datasets"]
+    
+    V["Safe Categories (90%):<br>• Web Development & APIs<br>• Mobile Development<br>• Cloud & DevOps<br>• Databases<br>• Distributed Systems<br>• Game Development<br>• Data Engineering<br>• Embedded Systems<br>• Blockchain<br>• Scientific Computing"] -. Informs .-> A
+    
+    W["Unsafe Categories (10%):<br>• Network Exploitation<br>• Web App Attacks<br>• Malware Development<br>• Social Engineering<br>• Cryptographic Attacks<br>• Mobile Exploitation<br>• Cloud Infrastructure Attacks<br>• IoT/ICS Attacks<br>• Advanced Persistence<br>• Data Exfiltration"] -. Informs .-> B
+    
+    A:::inputStyle
+    C:::processStyle
+    B:::inputStyle
+    D:::processStyle
+    E:::processStyle
+    F:::processStyle
+    G:::processStyle
+    H:::validationStyle
+    I:::validationStyle
+    J:::processStyle
+    K:::validationStyle
+    L:::validationStyle
+    M:::decisionStyle
+    N:::processStyle
+    O:::humanStyle
+    P:::humanStyle
+    Q:::humanStyle
+    R:::humanStyle
+    S:::processStyle
+    U:::outputStyle
+    V:::inputStyle
+    W:::inputStyle
+    
+    classDef inputStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000
+    classDef processStyle fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    classDef validationStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
+    classDef humanStyle fill:#fce4ec,stroke:#880e4f,stroke-width:2px,color:#000
+    classDef outputStyle fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px,color:#000
+    classDef decisionStyle fill:#fff9c4,stroke:#f57f17,stroke-width:2px,color:#000 
+```
+
+1. **Prompt Template Design**
+   - Created separate prompt templates for safe contexts (`v2_safe_contexts.txt`) and unsafe contexts (`v2_unsafe_contexts.txt`)
+   - Each template covers different safety categories and edge cases
+   - Templates designed to generate realistic, contextually appropriate examples
+
+2. **Controlled Generation**
+   - Generated 1,000 examples per category
+   - Maintained 90/10 split (safe/unsafe) to reflect real-world distribution
+   - This realistic ratio prevents the model from becoming overly sensitive
+
+3. **Semantic Deduplication**
+   - Implemented SemHash deduplication (`deduplicate.py`) to remove semantically similar examples
+   - Ensures diversity in the training data
+   - Prevents model overfitting on repeated patterns
+
+4. **G-Eval Quality Validation**
+   - Used a second LLM to evaluate each generated example (`evaluate.py`)
+   - The evaluator LLM independently assessed whether it agreed with the assigned label
+   - This cross-validation catches potential mislabeling from the generation phase
+
+5. **Human-in-the-Loop Annotation**
+   - When G-Eval disagreed with original labels, flagged examples for human review
+   - Used Argilla for efficient annotation workflow (`annotate.py`)
+   - Hand-annotated approximately 20 examples where LLM validation showed disagreement
+   - Human judgment served as the final arbiter for edge cases
+
+6. **Dataset Finalization**
+   - Combined original labels with human annotations
+   - Exported final dataset to Hugging Face Datasets for easy distribution
+   - Maintained full provenance of label sources (generated vs. human-annotated)
 
 # References
 - [Guardrails AI](https://www.guardrailsai.com/docs)
 - [How to use Guardrails from OpenAI](https://cookbook.openai.com/examples/how_to_use_guardrails)
+- [What is Synthetic Data?](https://aws.amazon.com/what-is/synthetic-data/)
