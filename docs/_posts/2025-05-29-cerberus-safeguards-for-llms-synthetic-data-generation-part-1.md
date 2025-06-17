@@ -596,11 +596,15 @@ Key takeaways from building our synthetic data generation pipeline:
 
 - **Tool Integration**: Successfully orchestrated multiple specialized tools ([Distilabel](https://distilabel.argilla.io/latest/), [SemHash](https://github.com/MinishLab/semhash), [DeepEval](https://deepeval.com/), [Argilla](https://argilla.io/), [BERTopic](https://maartengr.github.io/BERTopic/)) but required significant integration effort.
 
+- **Marimo Notebooks**: [Marimo's](https://marimo.io) intuitive interface and out-of-the-box beautiful visualizations significantly streamlined our exploratory data analysis. The notebook's reactive cells and clean aesthetics made complex topic modeling results immediately accessible and visually appealing.
+
 - **Cost Considerations**: Spent approximately $20-25 on API calls during experimentation to produce our final 700+ row dataset. This relatively high cost for a small dataset emphasizes the importance of efficient development practices.
 
 - **Caching is Critical**: [Distilabel's](https://distilabel.argilla.io/latest/) built-in caching saved significant costs during pipeline development and testing. Future improvements should explore prompt-level caching since our main context templates remain constant.
 
 - **Quality vs. Scale**: While we achieved high-quality synthetic data, scaling beyond a few thousand examples requires careful cost management and optimization strategies.
+
+- **Systematic Dataset Generation**: Our current implementation, while functional, needs a more structured approach for large-scale deployment. Future iterations should focus on reproducibility, better pipeline orchestration, and clearer documentation of generation parameters and decisions.
 
 - **LLM-Aware Generation**: Further research is needed on making LLMs "aware" of their past generation results during the data creation process. This could potentially reduce the need for post-generation deduplication, improve dataset diversity, and lower costs by avoiding redundant generation in the first place.
 
