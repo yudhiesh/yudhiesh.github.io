@@ -176,6 +176,8 @@ In a general sense, the three techniques we have for building safeguards can be 
 | **Small ML Models** | Fast/Cheap | High | Lightweight, specialized models (e.g., DistilBERT, small classifiers) trained specifically for safety classification | Production systems, large-scale synthetic data generation, real-time applications |
 | **LLM-as-a-Guardrail** | Slow/Expensive | High | Large language models (GPT-4, Claude, etc.) used to evaluate and classify prompt safety with nuanced understanding | High-stakes decisions, complex edge cases, quality validation of synthetic datasets |
 
+A key goal in building these systems is to minimize the overrefusal rate—ensuring that legitimate queries are not incorrectly blocked. As highlighted in [Anthropic's Constitutional Classifiers](https://www.anthropic.com/news/constitutional-classifiers), achieving a balance between robust safety and minimal overrefusal is crucial for practical deployment. This balance allows us to maintain high safety standards while providing a smooth user experience.
+
 Before we can build and evaluate these safeguards, we need ground truth data—a collection of prompts labeled as either safe or unsafe. However, obtaining high-quality safety datasets poses several challenges: they often contain sensitive content, require careful human annotation, and must cover diverse edge cases. 
 
 To address this challenge, we'll leverage LLMs themselves to generate our training data. This process, known as [Synthetic Data Generation](https://aws.amazon.com/what-is/synthetic-data/), allows us to create large-scale, diverse datasets with accurate safety labels while maintaining control over the distribution and complexity of examples.
@@ -595,21 +597,17 @@ The interactive visualization below shows the topic distribution and similarity 
 
 # Final Thoughts
 
-After building this synthetic data generation pipeline, here are some key insights learned:
+Looking back on this project, what surprised me most was how quickly we were able to generate a high-quality dataset using synthetic data generation techniques. The combination of automated evaluation and human review ensured that our dataset was both diverse and accurate.
 
-- **Tool Integration**: The project successfully orchestrated multiple specialized tools ([Distilabel](https://distilabel.argilla.io/latest/), [SemHash](https://github.com/MinishLab/semhash), [DeepEval](https://deepeval.com/), [Argilla](https://argilla.io/), [BERTopic](https://maartengr.github.io/BERTopic/)), though this required significant integration effort. It's like building a complex machine where each part needs to work perfectly with the others.
+The project successfully orchestrated multiple specialized tools ([Distilabel](https://distilabel.argilla.io/latest/), [SemHash](https://github.com/MinishLab/semhash), [DeepEval](https://deepeval.com/), [Argilla](https://argilla.io/), [BERTopic](https://maartengr.github.io/BERTopic/)), though this required significant integration effort. One of the most valuable tools in our workflow was [Marimo](https://marimo.io). Its intuitive interface and beautiful visualizations made complex topic modeling results immediately accessible, while the notebook's reactive cells and clean aesthetics significantly streamlined our exploratory data analysis.
 
-- **Marimo Notebooks**: [Marimo's](https://marimo.io) intuitive interface and out-of-the-box beautiful visualizations significantly streamlined the exploratory data analysis. The notebook's reactive cells and clean aesthetics made complex topic modeling results immediately accessible and visually appealing. It's a game-changer for data exploration!
+The $20-25 cost might seem small, but when you're iterating quickly, it adds up. However, the investment is worth it for the quality and reliability of the data we obtained. [Distilabel's](https://distilabel.argilla.io/latest/) built-in caching was crucial here, saving significant costs during pipeline development and testing. Future improvements should explore prompt-level caching since the main context templates remain constant.
 
-- **Cost Considerations**: The project incurred approximately $20-25 in API calls during experimentation to produce the final 700+ row dataset. This relatively high cost for a small dataset emphasizes the importance of efficient development practices. Every API call counts!
+What excites me most about the future of this work is the potential for further advancements in synthetic data generation and safety model training. As models become more sophisticated, so too will our ability to generate and validate synthetic data, leading to even more robust safety systems. However, there are several areas that need attention:
 
-- **Caching is Critical**: [Distilabel's](https://distilabel.argilla.io/latest/) built-in caching saved significant costs during pipeline development and testing. Future improvements should explore prompt-level caching since the main context templates remain constant. It's like having a smart memory system that saves you from repeating expensive operations.
-
-- **Quality vs. Scale**: While the pipeline achieved high-quality synthetic data, scaling beyond a few thousand examples requires careful cost management and optimization strategies. It's a delicate balance between quantity and quality.
-
-- **Systematic Dataset Generation**: The current implementation, while functional, needs a more structured approach for large-scale deployment. Future iterations should focus on reproducibility, better pipeline orchestration, and clearer documentation of generation parameters and decisions. Think of it as building a production line that needs to be both efficient and reliable.
-
-- **LLM-Aware Generation**: Further research is needed on making LLMs "aware" of their past generation results during the data creation process. This could potentially reduce the need for post-generation deduplication, improve dataset diversity, and lower costs by avoiding redundant generation in the first place. It's like teaching the model to learn from its own history.
+1. **Systematic Generation**: The current implementation needs a more structured approach for large-scale deployment, with better pipeline orchestration and clearer documentation.
+2. **LLM Awareness**: Further research is needed on making LLMs "aware" of their past generation results during the data creation process. This could reduce the need for post-generation deduplication and improve dataset diversity.
+3. **Quality vs. Scale**: While we achieved high-quality synthetic data, scaling beyond a few thousand examples will require careful cost management and optimization strategies.
 
 # Coming Up Next
 
@@ -628,3 +626,4 @@ In Part 2 of this series, the synthetic dataset will be put to the test by compa
 - [Marimo](https://marimo.io)
 - [G-Eval Guide](https://www.confident-ai.com/blog/g-eval-the-definitive-guide)
 - [Cerberus Dataset](https://huggingface.co/datasets/yudhiesh/cerberus-guardrails-small)
+- [Constitutional Classifiers: Defending against Universal Jailbreaks](https://arxiv.org/abs/2501.18837)
