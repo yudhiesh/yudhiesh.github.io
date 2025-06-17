@@ -540,12 +540,52 @@ You can find it [here](https://huggingface.co/datasets/yudhiesh/cerberus-guardra
 
 ## Exploratory Data Analysis on Synthetic Data
 
-<div style="width: 100%; overflow-x: auto; border: 1px solid #ddd; border-radius: 4px;">
-<iframe src="{{ '/assets/eda.html' | relative_url }}" 
-        width="1200px" 
-        height="1000px" 
-        frameborder="0">
-</iframe>
+To better understand the characteristics of our synthetic dataset, we conducted a thorough analysis using [BERTopic](https://maartengr.github.io/BERTopic/), a powerful topic modeling tool. We developed an interactive analysis notebook using [Marimo](https://marimo.io) (available in our [EDA directory](https://github.com/yudhiesh/cerberus/tree/master/eda)) to explore the patterns and distributions within our 566 examples.
+
+<div align="center">
+  <figure>
+    <video width="800" autoplay loop muted playsinline>
+      <source src="https://user-images.githubusercontent.com/25746895/218420473-4b2bb539-9dbe-407a-9674-a8317c7fb3bf.mp4" type="video/mp4">
+    </video>
+    <figcaption><em>BERTopic in action: Visualizing the dynamic clustering process of our dataset's topics</em></figcaption>
+  </figure>
+</div>
+
+> **Note**: You can explore the full interactive analysis by clicking the green "Open Fullscreen ↗" button in the visualization section below.
+
+The analysis revealed several interesting insights about our dataset's structure:
+
+1. **Topic Distribution**: Using `thenlper/gte-large` embeddings and HDBSCAN clustering, we identified distinct clusters that naturally separated into safe and unsafe categories. This clustering validates our synthetic data generation approach, showing clear semantic boundaries between benign and potentially harmful content.
+
+2. **Safe Content Clusters**: The safe examples formed coherent topic groups around legitimate technical domains:
+   - Streaming systems (Kafka, real-time processing)
+   - Database operations (Redis, caching strategies)
+   - Application development (gaming, web services)
+   These clusters demonstrate good coverage across various technical domains while maintaining clear safety boundaries.
+
+3. **Unsafe Content Patterns**: The analysis also revealed well-defined clusters of potentially harmful content:
+   - Network security exploits
+   - Database injection attempts
+   - System compromise techniques
+   This clustering helps validate our unsafe example generation and ensures comprehensive coverage of potential threats.
+
+The interactive visualization below shows the topic distribution and similarity relationships across our dataset. The clear separation between safe and unsafe clusters suggests our synthetic data generation process successfully created distinct, well-labeled examples suitable for training safety classifiers.
+
+<div style="width: 100%; position: relative;">
+  <div style="position: absolute; top: 10px; right: 10px; z-index: 10;">
+    <a href="{{ '/assets/eda.html' | relative_url }}" 
+       target="_blank" 
+       style="background: #4CAF50; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 14px;">
+      Open Fullscreen ↗
+    </a>
+  </div>
+  <div style="width: 100%; overflow-x: auto; border: 1px solid #ddd; border-radius: 4px;">
+    <iframe src="{{ '/assets/eda.html' | relative_url }}" 
+            width="1200px" 
+            height="1000px" 
+            frameborder="0">
+    </iframe>
+  </div>
 </div>
 
 # References
