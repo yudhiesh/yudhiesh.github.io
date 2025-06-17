@@ -5,6 +5,7 @@ date: 2025-05-29 16:33:48 +0000
 mathjax: true
 ---
 
+
 <script async
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML">
 </script>
@@ -13,6 +14,7 @@ mathjax: true
 <script>
   mermaid.initialize({ startOnLoad: true });
 </script>
+
 
 # Table of Contents
 * [Introduction](#introudction)
@@ -47,6 +49,7 @@ mathjax: true
       * [Dataset Structure](#dataset-structure)
   * [Exploratory Data Analysis on Synthetic Data](#exploratory-data-analysis-on-synthetic-data)
 * [References](#references)
+
 
 # Introduction
 
