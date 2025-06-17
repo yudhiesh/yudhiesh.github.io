@@ -45,7 +45,6 @@ mathjax: true
     * [6. Dataset Finalization](#6-dataset-finalization)
       * [Finalization Steps](#finalization-steps)
       * [Dataset Structure](#dataset-structure)
-  * [Verifying Synthetic Data using G-Eval](#verifying-synthetic-data-using-g-eval)
   * [Exploratory Data Analysis on Synthetic Data](#exploratory-data-analysis-on-synthetic-data)
 * [References](#references)
 
@@ -535,8 +534,6 @@ You can find it [here](https://huggingface.co/datasets/yudhiesh/cerberus-guardra
   height="560px"
 ></iframe>
 </div>
-
-## Verifying Synthetic Data using G-Eval
 
 ## Exploratory Data Analysis on Synthetic Data
 
