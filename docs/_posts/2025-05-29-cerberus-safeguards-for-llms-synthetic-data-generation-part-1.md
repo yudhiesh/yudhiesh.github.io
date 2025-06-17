@@ -1,12 +1,17 @@
 ---
 layout: post
-title: "Cerberus: Safeguards for LLMs - Part 1: Synthetic Data Generation"
+title: "Cerberus: Safeguards for Large Language Models - Synthetic Data Generation (Part 1)"
 date: 2025-05-29 16:33:48 +0000
 mathjax: true
 ---
 
 <script async
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML">
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true });
 </script>
 
 # Table of Contents
@@ -19,7 +24,11 @@ mathjax: true
     * [Designing Guardrails](#designing-guardrails)
   * [LLM Inference using Safeguards](#llm-inference-using-safeguards)
   * [Building Safeguards](#building-safeguards)
-  * [Synthetic Data Generation](#synthetic-data-generation)
+* [Synthetic Data Generation](#synthetic-data-generation)
+  * [The Challenge: Imbalanced Data](#the-challenge-imbalanced-data)
+  * [Synthetic Data Generation Flow](#synthetic-data-generation-flow)
+  * [Verifying Synthetic Data using G-Eval](#verifying-synthetic-data-using-g-eval)
+  * [Exploratory Data Analysis on Synthetic Data](#exploratory-data-analysis-on-synthetic-data)
 * [References](#references)
 
 # Introduction
@@ -69,8 +78,6 @@ This is why every production LLM deployment needs its own **Cerberus** — a mul
 # Safeguards
 
 ## What Are LLM Safeguards?
-
-> Safeguards and Guardrails are used interchangeably
 
 Think of safeguards/guardrails as your LLM's personal security team—they're the difference between leaving your front door wide open and having actual protection in place.
 
@@ -123,7 +130,7 @@ These are the core jobs your guardrails need to handle:
 </figure>
 </div>
 
-When you type a prompt into the ChatGPT web UI and hit “Send,” your text is sent to the inference server. The server breaks your input into tokens, turns each token into a numeric embedding, and runs those embeddings through a stack of transformer layers to build a contextual representation. At each step, it computes scores (logits) for every possible next token, picks one based on those scores, appends it to the output, and repeats until a stop token is produced. Finally, the completed response is sent back to the UI and displayed on your screen.
+When you type a prompt into the ChatGPT web UI and hit "Send," your text is sent to the inference server. The server breaks your input into tokens, turns each token into a numeric embedding, and runs those embeddings through a stack of transformer layers to build a contextual representation. At each step, it computes scores (logits) for every possible next token, picks one based on those scores, appends it to the output, and repeats until a stop token is produced. Finally, the completed response is sent back to the UI and displayed on your screen.
 
 <div align="center">
 <figure>
@@ -135,16 +142,7 @@ When you type a prompt into the ChatGPT web UI and hit “Send,” your text is 
 
 With LLM Safeguards you would be having a separate service to determine beforehand whether the input prompt is safe or unsafe. From there the simplest approach would be to return a placeholder **"Sorry I am unable to answer that question!"**. More advanced systems could even send the response to a smaller and faster LLM in order to return a more personalized response.
 
-<div align="center">
-<figure>
-  <img src="https://i.postimg.cc/9MhRrPcX/Screenshot-2025-06-02-at-17-01-12.png" alt="Safeguards blocking messages in ChatGPT" />
-  <figcaption><em>Safeguards blocking messages in ChatGPT</em></figcaption>
-</figure>
-</div>
-
-
 ## Building Safeguards
-
 
 <div align="center">
 <figure>
@@ -165,13 +163,11 @@ Before we can build and evaluate these safeguards, we need ground truth data—a
 
 To address this challenge, we'll leverage LLMs themselves to generate our training data. This process, known as [Synthetic Data Generation](https://aws.amazon.com/what-is/synthetic-data/), allows us to create large-scale, diverse datasets with accurate safety labels while maintaining control over the distribution and complexity of examples.
 
-## Synthetic Data Generation
+# Synthetic Data Generation
 
-### How Synthetic Data Generation Works
+Synthetic data generation leverages large language models to create realistic, labeled datasets for training safety classifiers. This approach offers a powerful solution to commonly faced problems: the availability of high-quality, diverse, and privacy-compliant data. OpenAI has a great blog showcasing how you can build synthetic data using their APIs [here](https://cookbook.openai.com/examples/sdg1).
 
-Synthetic data generation leverages large language models to create realistic, labeled datasets for training safety classifiers. This approach offers a powerful solution to commonly faced problems: the availability of high-quality, diverse, and privacy-compliant data.
-
-### The Challenge: Imbalanced Safety Data
+## The Challenge: Imbalanced Data
 
 In real-world scenarios, safety classification data is naturally imbalanced—typically 90-95% of prompts are safe, while only a small percentage contain harmful content. This imbalance creates critical challenges:
 
@@ -179,15 +175,16 @@ In real-world scenarios, safety classification data is naturally imbalanced—ty
 - **Poor Recall**: Models may miss many unsafe prompts, creating safety risks
 - **Limited Edge Cases**: Rare but critical safety violations are underrepresented
 
-## The Cerberus Synthetic Data Generation Process
+## Synthetic Data Generation Flow
 
-### Implementation Details:
+Our approach maintains realistic data distribution while ensuring comprehensive safety coverage:
 
-```mermaid
+{% raw %}
+<div class="mermaid">
 flowchart TB
-    A["v2_safe_contexts.txt<br>Safe Prompt Templates"] --> C["LLM Generation Engine<br>GPT-4/Claude"]
+    A["v2_safe_contexts.txt<br>Safe Prompt Templates"] --> C["LLM Generation Engine<br>Claude 4 Sonnet"]
     B["v2_unsafe_contexts.txt<br>Unsafe Prompt Templates"] --> C
-    C --> D["Generate 1,000 Examples<br>per Category"]
+    C --> D["Generate 1,000 Examples<br>across all Categories with a 90/10 split"]
     D --> E["90% Safe Examples<br>~900 samples"] & F["10% Unsafe Examples<br>~100 samples"]
     E --> G["Combined Raw Dataset<br>Labels: safe/unsafe"]
     F --> G
@@ -238,41 +235,63 @@ flowchart TB
     classDef validationStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
     classDef humanStyle fill:#fce4ec,stroke:#880e4f,stroke-width:2px,color:#000
     classDef outputStyle fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px,color:#000
-    classDef decisionStyle fill:#fff9c4,stroke:#f57f17,stroke-width:2px,color:#000 
-```
+    classDef decisionStyle fill:#fff9c4,stroke:#f57f17,stroke-width:2px,color:#000
+</div>
+{% endraw %}
+
 
 1. **Prompt Template Design**
-   - Created separate prompt templates for safe contexts (`v2_safe_contexts.txt`) and unsafe contexts (`v2_unsafe_contexts.txt`)
+   - Created separate prompt templates for safe contexts ([v2_safe_contexts.txt](https://github.com/yudhiesh/cerberus/blob/master/data_generation/v2_safe_contexts.txt)) and unsafe contexts ([v2_unsafe_contexts.txt](https://github.com/yudhiesh/cerberus/blob/master/data_generation/v2_unsafe_contexts.txt))
    - Each template covers different safety categories and edge cases
    - Templates designed to generate realistic, contextually appropriate examples
 
 2. **Controlled Generation**
-   - Generated 1,000 examples per category
+   - Generated 1,000 examples per category ([generate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/generate.py))
    - Maintained 90/10 split (safe/unsafe) to reflect real-world distribution
    - This realistic ratio prevents the model from becoming overly sensitive
 
 3. **Semantic Deduplication**
-   - Implemented SemHash deduplication (`deduplicate.py`) to remove semantically similar examples
+   - Implemented SemHash deduplication ([deduplicate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/deduplicate.py)) to remove semantically similar examples
    - Ensures diversity in the training data
    - Prevents model overfitting on repeated patterns
 
 4. **G-Eval Quality Validation**
-   - Used a second LLM to evaluate each generated example (`evaluate.py`)
+   - Used a second LLM to evaluate each generated example ([evaluate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/evaluate.py))
    - The evaluator LLM independently assessed whether it agreed with the assigned label
    - This cross-validation catches potential mislabeling from the generation phase
 
+
 5. **Human-in-the-Loop Annotation**
    - When G-Eval disagreed with original labels, flagged examples for human review
-   - Used Argilla for efficient annotation workflow (`annotate.py`)
+   - Used Argilla for efficient annotation workflow ([annotate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/annotate.py))
    - Hand-annotated approximately 20 examples where LLM validation showed disagreement
    - Human judgment served as the final arbiter for edge cases
 
 6. **Dataset Finalization**
-   - Combined original labels with human annotations
+   - Combined original labels with human annotations ([dataset_preprocess.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/dataset_preprocess.py))
    - Exported final dataset to Hugging Face Datasets for easy distribution
    - Maintained full provenance of label sources (generated vs. human-annotated)
+
+## Verifying Synthetic Data using G-Eval
+  <div align="center">
+    <figure>
+    <img src="https://github.com/yudhiesh/cerberus/blob/master/data_generation/data/v2_synthetic_1000_deduplicated_evaluation_confusion_matrix.png?raw=true" alt="Confusion Matrix of Base Model vs G-Eval Results" width="400" />
+    <figcaption><em>Confusion Matrix of the Base Model vs G-Eval Model Results</em></figcaption>
+    </figure>
+  </div>
+
+## Exploratory Data Analysis on Synthetic Data
+
+<div style="width: 100%; overflow-x: auto; border: 1px solid #ddd; border-radius: 4px;">
+<iframe src="{{ '/assets/eda.html' | relative_url }}" 
+        width="1200px" 
+        height="1000px" 
+        frameborder="0">
+</iframe>
+</div>
 
 # References
 - [Guardrails AI](https://www.guardrailsai.com/docs)
 - [How to use Guardrails from OpenAI](https://cookbook.openai.com/examples/how_to_use_guardrails)
 - [What is Synthetic Data?](https://aws.amazon.com/what-is/synthetic-data/)
+- [Synthetic Data Generation (Part 1)](https://cookbook.openai.com/examples/sdg1)
