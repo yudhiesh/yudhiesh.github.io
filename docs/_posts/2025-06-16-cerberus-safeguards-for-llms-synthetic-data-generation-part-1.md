@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Cerberus: Safeguards for Large Language Models - Synthetic Data Generation (Part 1)"
-date: 2025-05-29 16:33:48 +0000
+date: 2025-06-16 16:33:48 +0000
 mathjax: true
 ---
 
@@ -153,7 +153,9 @@ When you type a prompt into the ChatGPT web UI and hit "Send," your text is sent
 </div>
 
 
-With LLM Safeguards you would be having a separate service to determine beforehand whether the input prompt is safe or unsafe. From there the simplest approach would be to return a placeholder **"Sorry I am unable to answer that question!"**. More advanced systems could even send the response to a smaller and faster LLM in order to return a more personalized response.
+With LLM Safeguards you would be having a separate service to determine beforehand whether the input prompt is safe or unsafe. From there the simplest approach would be to return a placeholder **"Sorry I am unable to answer that question!"**. More advanced systems could even send the response to a smaller and faster LLM in order to return a more personalized response. Much like how OpenAI handles it when you try asking questions that should definitely be blocked:
+
+![ChatGPT Safeguards]({{ site.baseurl }}/images/chatgpt_safeguards.png)
 
 ## Building Safeguards
 
