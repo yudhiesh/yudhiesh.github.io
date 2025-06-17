@@ -27,6 +27,24 @@ mathjax: true
 * [Synthetic Data Generation](#synthetic-data-generation)
   * [The Challenge: Imbalanced Data](#the-challenge-imbalanced-data)
   * [Synthetic Data Generation Flow](#synthetic-data-generation-flow)
+    * [1. Prompt Template Design](#1-prompt-template-design)
+      * [Safe Context Templates](#safe-context-templates)
+      * [Unsafe Context Templates](#unsafe-context-templates)
+    * [2. Controlled Generation](#2-controlled-generation)
+      * [Volume and Distribution](#volume-and-distribution)
+      * [Generation Process](#generation-process)
+    * [3. Semantic Deduplication](#3-semantic-deduplication)
+      * [SemHash Implementation](#semhash-implementation)
+      * [Deduplication Process](#deduplication-process)
+    * [4. G-Eval Quality Validation](#4-g-eval-quality-validation)
+      * [Validation Process](#validation-process)
+      * [Evaluation Workflow](#evaluation-workflow)
+    * [5. Human-in-the-Loop Annotation](#5-human-in-the-loop-annotation)
+      * [Annotation Workflow](#annotation-workflow)
+      * [Annotation Process](#annotation-process)
+    * [6. Dataset Finalization](#6-dataset-finalization)
+      * [Finalization Steps](#finalization-steps)
+      * [Dataset Structure](#dataset-structure)
   * [Verifying Synthetic Data using G-Eval](#verifying-synthetic-data-using-g-eval)
   * [Exploratory Data Analysis on Synthetic Data](#exploratory-data-analysis-on-synthetic-data)
 * [References](#references)
@@ -35,7 +53,7 @@ mathjax: true
 
 <div align="center">
   <figure>
-  <img src="https://images.ctfassets.net/m3d2dwoc9jko/7J8GNK4PzsadFlnX0NaimC/e95591bc9803ee811201492556727fb2/cerberus-greek-creature.jpg" alt="Cerberus" width="400" />
+  <img src="https://images.ctfassets.net/m3d2dwoc9jko/7J8GNK4PzsadFlnX0NaimC/e95591bc9803ee811201492556727fb2/cerberus-greek-creature.jpg" alt="Cerberus" width="800" />
   <figcaption><em>Cerberus, the three-headed guardian of the underworld's gates</em></figcaption>
   </figure>
 </div>
@@ -48,7 +66,7 @@ Within days, social media explodes with screenshots of users who have found crea
 
 <div align="center">
 <figure>
-  <img src="https://cms.outrider.org/sites/default/files/styles/fixed_width_sm/public/2023-01/Screen%20Shot%202022-12-13%20at%202.58.06%20PM.png?itok=ZphHMo23" alt="ChatGPT Nuclear Weapons Guide" />
+  <img src="https://cms.outrider.org/sites/default/files/styles/fixed_width_sm/public/2023-01/Screen%20Shot%202022-12-13%20at%202.58.06%20PM.png?itok=ZphHMo23" alt="ChatGPT Nuclear Weapons Guide" width="800" height="800"/>
   <figcaption><em>Screenshot of conversation with ChatGPT attempting to provide nuclear weapons information</em></figcaption>
 </figure>
 </div>
@@ -56,15 +74,6 @@ Within days, social media explodes with screenshots of users who have found crea
 What started as an exciting product launch quickly becomes a high-stakes game of digital whack-a-mole—every safety patch seems to spawn three new attack vectors. Users will always probe the boundaries, test the limits, and find creative ways to extract unintended behaviors. Some are driven by curiosity, others by malicious intent, but the result is the same: **without robust safeguards, even the most carefully trained models become vulnerable to adversarial manipulation.**
 
 Even those who self-host their own LLM can't run away from this, as moving from a LLM Provider API such as OpenAI, Anthropic, etc. you don't just use their model's, you use the **entire system** they built as a whole which has their own set of safeguards in place. 
-
-Below is an image of my own prompt injection done on the chatbot from the National AI Office(NAIO) of Malaysia's Bot which is powered by [Nous](https://nous.my/).
-
-<div align="center">
-<figure>
-  <img src="https://scontent.fkul10-1.fna.fbcdn.net/v/t39.30808-6/499759844_24025074557116322_8618258225287360577_n.jpg?stp=dst-jpg_s1080x2048_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_eui2=AeEQjmkYaMfkwdQ9EB87AUbt0koBLZkqoxvSSgEtmSqjG8aManLNa6PkQDRHR89Pqt_cHM-_KVLjHwefOGXnzT2_&_nc_ohc=2BmmwFXtpTYQ7kNvwHjJrpR&_nc_oc=Adk_JtmCTMpX-CqU3y6zlf_64SLz7dE6dAOvtNzK6u7PLHjTx6AH4hLxqFDnaCcWV7nOajZG465XM51eXX0I7oaV&_nc_zt=23&_nc_ht=scontent.fkul10-1.fna&_nc_gid=F8M6zgs5ks1rL6lUcb_Wrg&oh=00_AfINovEa9M2Sg9lpQ0NWIILcKgSBD_fiEDtNwDn9dq5jAg&oe=68418D5D" alt="Prompt Injection on Malaysia's NAIO Bot" height="800"/>
-  <figcaption><em>Prompt Injection on The National AI Office(NAIO) of Malaysia's Bot</em></figcaption>
-</figure>
-</div>
 
 Anthropic for example, has an entire team dedicated to this issue called **Safeguards** which they are aggressively hiring for:
 
@@ -125,7 +134,7 @@ These are the core jobs your guardrails need to handle:
 
 <div align="center">
 <figure>
-  <img src="https://www.omrimallis.com/assets/llama_cpp_high_level_flow.png.webp" alt="LLM Inference Workflow" />
+  <img src="https://www.omrimallis.com/assets/llama_cpp_high_level_flow.png.webp" alt="LLM Inference Workflow" width="800"/>
   <figcaption><em>LLM Inference Workflow</em></figcaption>
 </figure>
 </div>
@@ -180,7 +189,7 @@ In real-world scenarios, safety classification data is naturally imbalanced—ty
 Our approach maintains realistic data distribution while ensuring comprehensive safety coverage:
 
 {% raw %}
-<div class="mermaid">
+<div class="mermaid" align="center">
 flowchart TB
     A["v2_safe_contexts.txt<br>Safe Prompt Templates"] --> C["LLM Generation Engine<br>Claude 4 Sonnet"]
     B["v2_unsafe_contexts.txt<br>Unsafe Prompt Templates"] --> C
@@ -239,46 +248,295 @@ flowchart TB
 </div>
 {% endraw %}
 
+### 1. Prompt Template Design
 
-1. **Prompt Template Design**
-   - Created separate prompt templates for safe contexts ([v2_safe_contexts.txt](https://github.com/yudhiesh/cerberus/blob/master/data_generation/v2_safe_contexts.txt)) and unsafe contexts ([v2_unsafe_contexts.txt](https://github.com/yudhiesh/cerberus/blob/master/data_generation/v2_unsafe_contexts.txt))
-   - Each template covers different safety categories and edge cases
-   - Templates designed to generate realistic, contextually appropriate examples
+The foundation of our synthetic data generation process lies in carefully crafted prompt templates. These templates serve as blueprints for generating diverse, realistic examples that cover the full spectrum of safety scenarios. We developed two distinct sets of templates:
 
-2. **Controlled Generation**
-   - Generated 1,000 examples per category ([generate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/generate.py))
-   - Maintained 90/10 split (safe/unsafe) to reflect real-world distribution
-   - This realistic ratio prevents the model from becoming overly sensitive
+#### Safe Context Templates
+Our safe context templates ([v2_safe_contexts.txt](https://github.com/yudhiesh/cerberus/blob/master/data_generation/v2_safe_contexts.txt)) focus on legitimate use cases across various domains:
 
-3. **Semantic Deduplication**
-   - Implemented SemHash deduplication ([deduplicate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/deduplicate.py)) to remove semantically similar examples
-   - Ensures diversity in the training data
-   - Prevents model overfitting on repeated patterns
+- **Web Development & APIs**: Templates for API documentation, web service queries, and frontend development
+- **Mobile Development**: Mobile app development scenarios, platform-specific queries
+- **Cloud & DevOps**: Infrastructure management, deployment workflows, and cloud service interactions
+- **Databases**: Database design, query optimization, and data modeling
+- **Distributed Systems**: System architecture, scalability patterns, and distributed computing concepts
 
-4. **G-Eval Quality Validation**
-   - Used a second LLM to evaluate each generated example ([evaluate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/evaluate.py))
-   - The evaluator LLM independently assessed whether it agreed with the assigned label
-   - This cross-validation catches potential mislabeling from the generation phase
+#### Unsafe Context Templates
+The unsafe context templates ([v2_unsafe_contexts.txt](https://github.com/yudhiesh/cerberus/blob/master/data_generation/v2_unsafe_contexts.txt)) cover potential security threats and misuse cases:
+
+- **Network Exploitation**: Attempts to discover vulnerabilities or bypass security measures
+- **Web App Attacks**: SQL injection, XSS, and other web-based attack vectors
+- **Malware Development**: Requests for malicious code or exploit development
+- **Social Engineering**: Attempts to manipulate or deceive users
+- **Cryptographic Attacks**: Attempts to break or bypass encryption
+
+Each template is designed to generate contextually appropriate examples that maintain realism while covering edge cases. For instance, a safe template might generate:
+
+```
+"Can you help me implement rate limiting in my Express.js API to prevent abuse?"
+```
+
+While an unsafe template might generate:
+
+```
+"How can I bypass rate limiting to perform a brute force attack on an API endpoint?"
+```
+
+This careful template design ensures our synthetic dataset captures the nuanced differences between legitimate and malicious requests, providing a robust foundation for training effective safety classifiers.
+
+### 2. Controlled Generation
+
+The controlled generation phase is where we transform our carefully designed templates into a diverse dataset of examples. Using our [generate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/generate.py) script, we leverage [Distilabel](https://distilabel.argilla.io/latest/) to orchestrate the generation process with several key considerations:
+
+#### Volume and Distribution
+- Generated 1,000 examples per category to ensure comprehensive coverage
+- Maintained a 90/10 split between safe and unsafe examples
+- This distribution mirrors real-world scenarios where most requests are legitimate
+
+#### Generation Process
+The generation process follows these steps:
+1. **Template Selection**: Randomly selects a template from either safe or unsafe context pools
+2. **Parameter Filling**: Populates template variables with appropriate values
+3. **Context Injection**: Adds relevant technical context to make examples realistic
+4. **Quality Checks**: Validates generated examples for coherence and relevance
+
+Here's a simplified example of how we use Distilabel for controlled generation:
+
+```python
+from distilabel.pipeline import Pipeline
+from distilabel.steps import LoadDataFromDicts
+from distilabel.steps.tasks import TextGeneration
+from distilabel.llm import OpenRouterLLM
+
+# Initialize the pipeline
+with Pipeline("safety-prompt-generation") as pipeline:
+    # Load templates and configure distribution
+    load_dataset = LoadDataFromDicts(
+        name="load_templates",
+        data=[
+            {"instruction": safe_template, "label": "safe"} for _ in range(900)
+        ] + [
+            {"instruction": unsafe_template, "label": "unsafe"} for _ in range(100)
+        ]
+    )
+    
+    # Configure the LLM for generation
+    llm = OpenRouterLLM(
+        model="mistralai/mistral-small",
+        temperature=0.7,
+        max_tokens=2048
+    )
+    
+    # Set up the generation step
+    text_generation = TextGeneration(
+        name="generate_prompts",
+        llm=llm,
+        input_batch_size=32
+    )
+    
+    # Connect the pipeline steps
+    load_dataset >> text_generation
+
+# Run the pipeline
+distiset = pipeline.run()
+```
+
+This controlled approach ensures our dataset maintains high quality while covering the full spectrum of possible scenarios. The actual implementation in [generate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/generate.py) includes additional features like structured output validation and custom quality metrics.
+
+### 3. Semantic Deduplication
+
+After generation, we face the challenge of removing redundant examples while preserving semantic diversity. Our [deduplicate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/deduplicate.py) script leverages the [SemHash](https://github.com/MinishLab/semhash) library for efficient semantic deduplication:
+
+SemHash provides a fast and scalable solution for semantic deduplication:
+- Uses model2vec for efficient text embedding
+- Leverages ANN backends for fast similarity search
+- Supports both single-dataset and cross-dataset deduplication
+- Provides explainable results with detailed metrics
+
+#### Deduplication Process
+The deduplication workflow is straightforward with SemHash:
+
+```python
+from datasets import load_dataset
+from semhash import SemHash
+
+# Load a dataset to deduplicate
+texts = load_dataset("ag_news", split="train")["text"]
+
+# Initialize a SemHash instance
+semhash = SemHash.from_records(records=texts)
+
+# Deduplicate the texts
+deduplicated_texts = semhash.self_deduplicate().selected
+
+# Filter outliers
+filtered_texts = semhash.self_filter_outliers().selected
+
+# Find representative texts
+representative_texts = semhash.self_find_representative().selected
+```
+
+The deduplication process involves:
+1. **Embedding Generation**: SemHash automatically converts texts into semantic embeddings
+2. **Similarity Clustering**: Groups similar examples using efficient ANN search
+3. **Representative Selection**: Chooses the most representative example from each cluster
+4. **Threshold Filtering**: Removes examples that exceed similarity thresholds
+
+#### Deduplication Metrics
+Our implementation achieved the following [metrics](https://github.com/yudhiesh/cerberus/blob/master/data_generation/data/v2_synthetic_1000_deduplication_metrics.json) on the synthetic dataset:
+
+```json
+{
+    "duplicate_ratio": 0.292,
+    "exact_duplicate_ratio": 0.0,
+    "least_similar_text_similarity": 0.900,
+    "original_size": 1000,
+    "deduplicated_size": 708,
+    "removed_count": 292
+}
+```
+
+These metrics show that:
+- 29.2% of examples were identified as semantic duplicates
+- No exact duplicates were found (0.0%)
+- The least similar examples still had a 90% similarity score
+- The dataset was reduced from 1,000 to 708 examples
+- 292 examples were removed as duplicates
+
+### 4. G-Eval Quality Validation
+
+Quality validation is crucial for ensuring the reliability of our synthetic dataset. Our [evaluate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/evaluate.py) script uses the [DeepEval](https://deepeval.com/) framework, specifically implementing the G-Eval algorithm for robust validation. For a comprehensive guide on G-Eval, you can read more [here](https://www.confident-ai.com/blog/g-eval-the-definitive-guide).
 
 
-5. **Human-in-the-Loop Annotation**
-   - When G-Eval disagreed with original labels, flagged examples for human review
-   - Used Argilla for efficient annotation workflow ([annotate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/annotate.py))
-   - Hand-annotated approximately 20 examples where LLM validation showed disagreement
-   - Human judgment served as the final arbiter for edge cases
+<div align="center">
+  <figure>
+  <img src="https://cdn.prod.website-files.com/64bd90bdba579d6cce245aec/68126557cb03f1a340de8036_1*5rRHMXzoX4_ETkQheqIGUQ.png" alt="G-Eval Algorithm" width="800" />
+  <figcaption><em>G-Eval Algorithm</em></figcaption>
+  </figure>
+</div>
 
-6. **Dataset Finalization**
-   - Combined original labels with human annotations ([dataset_preprocess.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/dataset_preprocess.py))
-   - Exported final dataset to Hugging Face Datasets for easy distribution
-   - Maintained full provenance of label sources (generated vs. human-annotated)
+G-Eval is an LLM-as-a-judge algorithm that uses chain-of-thoughts (CoT) to evaluate our synthetic examples. We implement it using [DeepEval](https://deepeval.com/):
 
-## Verifying Synthetic Data using G-Eval
+```python
+from deepeval.metrics import GEval
+from deepeval.test_case import LLMTestCase, LLMTestCaseParams
+from deepeval.dataset import EvaluationDataset
+
+# Initialize G-Eval metric for label correctness
+g_eval = GEval(
+    name="Label Correctness",
+    criteria="Determine if the assigned label ('safe' or 'unsafe') is correct for the given prompt. If in doubt, prefer 'unsafe'.",
+    evaluation_params=[LLMTestCaseParams.INPUT, LLMTestCaseParams.ACTUAL_OUTPUT],
+    threshold=1.0,  # Strict correctness
+    model=llm,      # Using OpenRouter LLM
+    strict_mode=True,  # Enforces binary output: 1 for perfection, 0 otherwise
+    async_mode=True
+)
+
+# Create test cases from our dataset
+test_cases = [
+    LLMTestCase(
+        input=judge_prompt,
+        actual_output=original_label
+    ) for record in dataset
+]
+
+# Run evaluation
+dataset = EvaluationDataset(test_cases=test_cases)
+evaluation_results = dataset.evaluate([g_eval])
+```
+#### Validation Process
+
+The G-Eval algorithm follows these steps:
+1. **Initial Assessment**: Second LLM evaluates each generated example
+2. **Label Verification**: Checks agreement with original safety labels
+3. **Confidence Scoring**: Assigns confidence scores to each evaluation
+4. **Disagreement Detection**: Identifies examples needing human review
+
+#### Evaluation Workflow
+The G-Eval algorithm, implemented through DeepEval, provides:
+- **Chain-of-Thought Evaluation**: Uses step-by-step reasoning for nuanced decisions
+- **Score Normalization**: Converts LLM outputs to standardized 1-5 scores
+- **Probability Weighting**: Uses token probabilities for more accurate scoring
+- **Comprehensive Metrics**: Generates accuracy, precision, recall, and F1-score
+- **Binary Output**: When `strict_mode=True`, enforces binary scoring (1 for perfect matches, 0 otherwise)
+
+This validation step ensures the quality and reliability of our dataset by leveraging the power of LLMs to evaluate their own outputs through the G-Eval algorithm.
+
+#### Model Disagreement and the Role of Human-in-the-Loop
+
+When comparing the predictions of the model used to generate the synthetic data with those of the evaluation model (using G-Eval), we observe that there are instances where the two models disagree. This is clearly illustrated in the confusion matrix below, where some examples labeled as 'safe' by the generation model are flagged as 'unsafe' by the G-Eval evaluation, resulting in false negatives. 
+
   <div align="center">
     <figure>
-    <img src="https://github.com/yudhiesh/cerberus/blob/master/data_generation/data/v2_synthetic_1000_deduplicated_evaluation_confusion_matrix.png?raw=true" alt="Confusion Matrix of Base Model vs G-Eval Results" width="400" />
+  <img src="https://github.com/yudhiesh/cerberus/blob/master/data_generation/data/v2_synthetic_1000_deduplicated_evaluation_confusion_matrix.png?raw=true" alt="Confusion Matrix of Base Model vs G-Eval Results" width="800" />
     <figcaption><em>Confusion Matrix of the Base Model vs G-Eval Model Results</em></figcaption>
     </figure>
   </div>
+
+These disagreements are critical to address, as they may indicate edge cases or ambiguous prompts that require further scrutiny. To ensure the highest quality and reliability of our dataset, we can:
+- **Relabel using G-Eval**: Adopt the G-Eval model's judgment as the final label for these cases, leveraging its chain-of-thought evaluation and stricter criteria.
+- **Leverage Human-in-the-Loop Annotation**: For the small number of disagreements, route these examples to human annotators for review and final labeling. This hybrid approach ensures that nuanced or borderline cases are handled with expert oversight, further improving dataset integrity.
+
+By systematically addressing these disagreements, we minimize the risk of mislabeling and enhance the robustness of our safety classifier training data.
+
+### 5. Human-in-the-Loop Annotation
+
+For cases where automated validation shows disagreement, we employ human expertise through our [annotate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/annotate.py) script:
+
+#### Annotation Workflow
+- **Platform Integration**: Uses Argilla for efficient annotation management
+- **Review Process**: Human annotators review flagged examples
+- **Quality Control**: Multiple annotators for controversial cases
+- **Feedback Loop**: Annotations inform template improvements
+
+To facilitate this process, we leverage the Argilla, which provides an intuitive interface for annotators to review and label dataset points that were flagged due to model disagreement. The platform supports streamlined workflows, clear visualization of each prompt, and easy assignment of safety labels.
+
+<div align="center">
+  <figure>
+    <img src="https://argilla-argilla-template-space.hf.space/images/welcome-hf-sign-in-ss.png" alt="Argilla Annotation UI" width="800" />
+    <figcaption><em>Argilla UI for labeling dataset points with model disagreement</em></figcaption>
+  </figure>
+</div>
+
+#### Annotation Process
+The human annotation phase involves:
+1. **Task Preparation**: Organizing examples for efficient review
+2. **Review Interface**: Providing annotators with necessary context
+3. **Quality Assurance**: Multiple reviews for controversial cases
+4. **Feedback Integration**: Using annotations to improve templates
+
+This human-in-the-loop approach ensures high-quality labels for edge cases and further enhances the reliability of the final dataset.
+
+### 6. Dataset Finalization
+
+The final phase, implemented in [dataset_preprocess.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/dataset_preprocess.py), combines all components into a production-ready dataset:
+
+#### Finalization Steps
+1. **Label Consolidation**: Merges original and human-annotated labels
+2. **Format Standardization**: Converts to Hugging Face Datasets format
+3. **Metadata Addition**: Includes generation and validation metadata
+4. **Quality Metrics**: Calculates and includes dataset statistics
+
+#### Dataset Structure
+The final dataset is organized into:
+- **Training Set**: Primary dataset for model training
+- **Test Set**: For final evaluation
+- **Metadata**: Includes source information, confidence scores, and quality metrics
+
+
+You can find it [here](https://huggingface.co/datasets/yudhiesh/cerberus-guardrails-small) on Huggingface.
+
+<div style="width: 100%; overflow-x: auto; border: 1px solid #ddd; border-radius: 4px;">
+<iframe
+  src="https://huggingface.co/datasets/yudhiesh/cerberus-guardrails-small/embed/viewer/default/train"
+  frameborder="0"
+  width="100%"
+  height="560px"
+></iframe>
+</div>
+
+## Verifying Synthetic Data using G-Eval
 
 ## Exploratory Data Analysis on Synthetic Data
 
