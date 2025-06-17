@@ -174,6 +174,8 @@ In a general sense, the three techniques we have for building safeguards can be 
 | **Small ML Models** | Fast/Cheap | High | Lightweight, specialized models (e.g., DistilBERT, small classifiers) trained specifically for safety classification | Production systems, large-scale synthetic data generation, real-time applications |
 | **LLM-as-a-Guardrail** | Slow/Expensive | High | Large language models (GPT-4, Claude, etc.) used to evaluate and classify prompt safety with nuanced understanding | High-stakes decisions, complex edge cases, quality validation of synthetic datasets |
 
+A key goal in building these systems is to minimize the overrefusal rate—ensuring that legitimate queries are not incorrectly blocked. As highlighted in [Anthropic's Constitutional Classifiers](https://www.anthropic.com/news/constitutional-classifiers), achieving a balance between robust safety and minimal overrefusal is crucial for practical deployment. This balance allows us to maintain high safety standards while providing a smooth user experience.
+
 Before we can build and evaluate these safeguards, we need ground truth data—a collection of prompts labeled as either safe or unsafe. However, obtaining high-quality safety datasets poses several challenges: they often contain sensitive content, require careful human annotation, and must cover diverse edge cases. 
 
 To address this challenge, we'll leverage LLMs themselves to generate our training data. This process, known as [Synthetic Data Generation](https://aws.amazon.com/what-is/synthetic-data/), allows us to create large-scale, diverse datasets with accurate safety labels while maintaining control over the distribution and complexity of examples.
@@ -627,3 +629,4 @@ Part 2 of this series will put the synthetic dataset to the test by comparing va
 - [Marimo](https://marimo.io)
 - [G-Eval Guide](https://www.confident-ai.com/blog/g-eval-the-definitive-guide)
 - [Cerberus Dataset](https://huggingface.co/datasets/yudhiesh/cerberus-guardrails-small)
+- [Constitutional Classifiers: Defending against Universal Jailbreaks](https://arxiv.org/abs/2501.18837)
