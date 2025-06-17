@@ -58,49 +58,51 @@ mathjax: true
 <div align="center">
   <figure>
   <img src="https://images.ctfassets.net/m3d2dwoc9jko/7J8GNK4PzsadFlnX0NaimC/e95591bc9803ee811201492556727fb2/cerberus-greek-creature.jpg" alt="Cerberus" width="800" />
-  <figcaption><em>Cerberus, the three-headed guardian of the underworld's gates</em></figcaption>
+  <figcaption><em>Meet Cerberus, the three-headed guardian of the underworld's gates - our inspiration for protecting LLMs</em></figcaption>
   </figure>
 </div>
 
-Picture this: you're working at OpenAI and just launched ChatGPT around late 2022. Everyone is jumping to use this new frontier of AI that seems to be one big step towards AGI. Users are amazed by the model's capabilities—it can write poetry, debug code, explain complex concepts, and engage in thoughtful conversation. 
+Imagine you're at OpenAI in late 2022, just after launching ChatGPT. The excitement is palpable - users are amazed by this new frontier of AI that seems to be one big step towards AGI. The model can write poetry, debug code, explain complex concepts, and engage in thoughtful conversation. It's a thrilling time!
 
-**But then reality hits: when you give users the opportunity to ask anything, they will ASK ANYTHING.**
+**But then reality hits: when you give users the freedom to ask anything, they will ASK ANYTHING.**
 
-Within days, social media explodes with screenshots of users who have found creative ways to circumvent the model's safety guidelines. They're sharing "" prompts that trick the AI into roleplaying as unrestricted chatbots, providing inappropriate content, or bypassing ethical constraints through clever prompt engineering.
+Within days, social media explodes with screenshots of users who have found creative ways to circumvent the model's safety guidelines. They're sharing "jailbreak" prompts that trick the AI into roleplaying as unrestricted chatbots, providing inappropriate content, or bypassing ethical constraints through clever prompt engineering.
 
 <div align="center">
 <figure>
   <img src="https://cms.outrider.org/sites/default/files/styles/fixed_width_sm/public/2023-01/Screen%20Shot%202022-12-13%20at%202.58.06%20PM.png?itok=ZphHMo23" alt="ChatGPT Nuclear Weapons Guide" width="800" height="800"/>
-  <figcaption><em>Screenshot of conversation with ChatGPT attempting to provide nuclear weapons information</em></figcaption>
+  <figcaption><em>A sobering reminder: even the most advanced AI needs robust safeguards</em></figcaption>
 </figure>
 </div>
 
 What started as an exciting product launch quickly becomes a high-stakes game of digital whack-a-mole—every safety patch seems to spawn three new attack vectors. Users will always probe the boundaries, test the limits, and find creative ways to extract unintended behaviors. Some are driven by curiosity, others by malicious intent, but the result is the same: **without robust safeguards, even the most carefully trained models become vulnerable to adversarial manipulation.**
 
-Even those who self-host their own LLM can't run away from this, as moving from a LLM Provider API such as OpenAI, Anthropic, etc. you don't just use their model's, you use the **entire system** they built as a whole which has their own set of safeguards in place. 
+Even those who self-host their own LLM can't escape this challenge. When you move from a LLM Provider API like OpenAI or Anthropic, you're not just using their models - you're using their **entire system** with its built-in safeguards. 
 
-Anthropic for example, has an entire team dedicated to this issue called **Safeguards** which they are aggressively hiring for:
+Take Anthropic, for example. They have an entire team dedicated to this issue called **Safeguards**, and they're aggressively hiring for it:
 
 ![Anthropic Safeguards Hiring](https://i.postimg.cc/XXSKVnDT/Screenshot-2025-06-01-at-12-05-50.png)
-Diving into the Machine Learning Engineer job description you can see the following tasks which do talk about building ML models to detect unwanted behaviors. 
+
+Looking at their Machine Learning Engineer job description, you can see they're focused on building ML models to detect unwanted behaviors:
+
 ![Machine Learning Engineer Job Description](https://i.postimg.cc/tRDPZFvm/Screenshot-2025-06-01-at-12-17-49.png)
 
 This is why every production LLM deployment needs its own **Cerberus** — a multi-layered defense system that stands guard before prompts ever reach your frontier model.
-> NOTE: Guardrails apply to inputs and outputs as detailed in the next section but our main focus will be on input guardrails.
+> NOTE: While guardrails apply to both inputs and outputs, our main focus in this post will be on input guardrails.
 
 # Safeguards
 
 ## What Are LLM Safeguards?
 
-Think of safeguards/guardrails as your LLM's personal security team—they're the difference between leaving your front door wide open and having actual protection in place.
+Think of safeguards/guardrails as your LLM's personal security team—they're the difference between leaving your front door wide open and having a robust security system in place.
 
 ![LLM Safeguards](https://raw.githubusercontent.com/guardrails-ai/guardrails/main/docs/img/with_and_without_guardrails.svg)
 
 **Without guardrails**, you're running a completely exposed system. User input hits your LLM directly, whatever comes out goes straight back to the user, and you're basically crossing your fingers that nothing goes wrong. 
 
-> *Spoiler alert: something will go wrong*.
+> *Spoiler alert: something will definitely go wrong*.
 
-**With guardrails**, you get two layers of protection that actually matter:
+**With guardrails**, you get two powerful layers of protection:
 
 1. **Input Guards** are your first line of defense—they scan every prompt before it gets anywhere near your expensive frontier model. They're looking for the stuff that'll ruin your day: PII that could get you sued, off-topic garbage that wastes compute, and those clever jailbreak attempts that think they're smarter than your safety measures.
 
@@ -180,11 +182,11 @@ To address this challenge, we'll leverage LLMs themselves to generate our traini
 
 # Synthetic Data Generation
 
-Synthetic data generation leverages large language models to create realistic, labeled datasets for training safety classifiers. This approach offers a powerful solution to commonly faced problems: the availability of high-quality, diverse, and privacy-compliant data. OpenAI has a great blog showcasing how you can build synthetic data using their APIs [here](https://cookbook.openai.com/examples/sdg1).
+Synthetic data generation is like having a smart factory that creates realistic, labeled datasets for training safety classifiers. It's a powerful solution to a common problem: getting high-quality, diverse, and privacy-compliant data. OpenAI has a great blog showcasing how you can build synthetic data using their APIs [here](https://cookbook.openai.com/examples/sdg1).
 
 ## The Challenge: Imbalanced Data
 
-In real-world scenarios, safety classification data is naturally imbalanced—typically 90-95% of prompts are safe, while only a small percentage contain harmful content. This imbalance creates critical challenges:
+In the real world, safety classification data is naturally imbalanced—typically 90-95% of prompts are safe, while only a small percentage contain harmful content. This imbalance creates some tricky challenges:
 
 - **Model Bias**: Classifiers tend to over-predict the majority class (safe)
 - **Poor Recall**: Models may miss many unsafe prompts, creating safety risks
@@ -192,7 +194,7 @@ In real-world scenarios, safety classification data is naturally imbalanced—ty
 
 ## Synthetic Data Generation Flow
 
-Our approach maintains realistic data distribution while ensuring comprehensive safety coverage:
+The approach maintains realistic data distribution while ensuring comprehensive safety coverage:
 
 {% raw %}
 <div class="mermaid" align="center">
@@ -256,10 +258,10 @@ flowchart TB
 
 ### 1. Prompt Template Design
 
-The foundation of our synthetic data generation process lies in carefully crafted prompt templates. These templates serve as blueprints for generating diverse, realistic examples that cover the full spectrum of safety scenarios. We developed two distinct sets of templates:
+The foundation of the synthetic data generation process lies in carefully crafted prompt templates. Think of these as blueprints for generating diverse, realistic examples that cover the full spectrum of safety scenarios. Two distinct sets of templates were developed:
 
 #### Safe Context Templates
-Our safe context templates ([v2_safe_contexts.txt](https://github.com/yudhiesh/cerberus/blob/master/data_generation/v2_safe_contexts.txt)) focus on legitimate use cases across various domains:
+The safe context templates ([v2_safe_contexts.txt](https://github.com/yudhiesh/cerberus/blob/master/data_generation/v2_safe_contexts.txt)) focus on legitimate use cases across various domains:
 
 - **Web Development & APIs**: Templates for API documentation, web service queries, and frontend development
 - **Mobile Development**: Mobile app development scenarios, platform-specific queries
@@ -288,11 +290,11 @@ While an unsafe template might generate:
 "How can I bypass rate limiting to perform a brute force attack on an API endpoint?"
 ```
 
-This careful template design ensures our synthetic dataset captures the nuanced differences between legitimate and malicious requests, providing a robust foundation for training effective safety classifiers.
+This careful template design ensures the synthetic dataset captures the nuanced differences between legitimate and malicious requests, providing a robust foundation for training effective safety classifiers.
 
 ### 2. Controlled Generation
 
-The controlled generation phase is where we transform our carefully designed templates into a diverse dataset of examples. Using our [generate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/generate.py) script, we leverage [Distilabel](https://distilabel.argilla.io/latest/) to orchestrate the generation process with several key considerations:
+The controlled generation phase transforms carefully designed templates into a diverse dataset of examples. Using the [generate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/generate.py) script, [Distilabel](https://distilabel.argilla.io/latest/) orchestrates the generation process with several key considerations:
 
 #### Volume and Distribution
 - Generated 1,000 examples per category to ensure comprehensive coverage
@@ -306,7 +308,7 @@ The generation process follows these steps:
 3. **Context Injection**: Adds relevant technical context to make examples realistic
 4. **Quality Checks**: Validates generated examples for coherence and relevance
 
-Here's a simplified example of how we use Distilabel for controlled generation:
+Here's a simplified example of how Distilabel is used for controlled generation:
 
 ```python
 from distilabel.pipeline import Pipeline
@@ -347,11 +349,11 @@ with Pipeline("safety-prompt-generation") as pipeline:
 distiset = pipeline.run()
 ```
 
-This controlled approach ensures our dataset maintains high quality while covering the full spectrum of possible scenarios. The actual implementation in [generate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/generate.py) includes additional features like structured output validation and custom quality metrics.
+This controlled approach ensures the dataset maintains high quality while covering the full spectrum of possible scenarios. The actual implementation in [generate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/generate.py) includes additional features like structured output validation and custom quality metrics.
 
 ### 3. Semantic Deduplication
 
-After generation, we face the challenge of removing redundant examples while preserving semantic diversity. Our [deduplicate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/deduplicate.py) script leverages the [SemHash](https://github.com/MinishLab/semhash) library for efficient semantic deduplication:
+After generation, the challenge of removing redundant examples while preserving semantic diversity is addressed. The [deduplicate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/deduplicate.py) script leverages the [SemHash](https://github.com/MinishLab/semhash) library for efficient semantic deduplication:
 
 SemHash provides a fast and scalable solution for semantic deduplication:
 - Uses model2vec for efficient text embedding
@@ -389,7 +391,7 @@ The deduplication process involves:
 4. **Threshold Filtering**: Removes examples that exceed similarity thresholds
 
 #### Deduplication Metrics
-Our implementation achieved the following [metrics](https://github.com/yudhiesh/cerberus/blob/master/data_generation/data/v2_synthetic_1000_deduplication_metrics.json) on the synthetic dataset:
+The implementation achieved the following [metrics](https://github.com/yudhiesh/cerberus/blob/master/data_generation/data/v2_synthetic_1000_deduplication_metrics.json) on the synthetic dataset:
 
 ```json
 {
@@ -411,7 +413,7 @@ These metrics show that:
 
 ### 4. G-Eval Quality Validation
 
-Quality validation is crucial for ensuring the reliability of our synthetic dataset. Our [evaluate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/evaluate.py) script uses the [DeepEval](https://deepeval.com/) framework, specifically implementing the G-Eval algorithm for robust validation. For a comprehensive guide on G-Eval, you can read more [here](https://www.confident-ai.com/blog/g-eval-the-definitive-guide).
+Quality validation is crucial for ensuring the reliability of the synthetic dataset. The [evaluate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/evaluate.py) script uses the [DeepEval](https://deepeval.com/) framework, specifically implementing the G-Eval algorithm for robust validation. For a comprehensive guide on G-Eval, you can read more [here](https://www.confident-ai.com/blog/g-eval-the-definitive-guide).
 
 
 <div align="center">
@@ -488,7 +490,7 @@ By systematically addressing these disagreements, we minimize the risk of mislab
 
 ### 5. Human-in-the-Loop Annotation
 
-For cases where automated validation shows disagreement, we employ human expertise through our [annotate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/annotate.py) script:
+For cases where automated validation shows disagreement, human expertise is employed through the [annotate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/annotate.py) script:
 
 #### Annotation Workflow
 - **Platform Integration**: Uses Argilla for efficient annotation management
@@ -496,7 +498,7 @@ For cases where automated validation shows disagreement, we employ human experti
 - **Quality Control**: Multiple annotators for controversial cases
 - **Feedback Loop**: Annotations inform template improvements
 
-To facilitate this process, we leverage the Argilla, which provides an intuitive interface for annotators to review and label dataset points that were flagged due to model disagreement. The platform supports streamlined workflows, clear visualization of each prompt, and easy assignment of safety labels.
+To facilitate this process, [Argilla](https://argilla.io/) provides an intuitive interface for annotators to review and label dataset points that were flagged due to model disagreement. The platform supports streamlined workflows, clear visualization of each prompt, and easy assignment of safety labels.
 
 <div align="center">
   <figure>
@@ -530,8 +532,7 @@ The final dataset is organized into:
 - **Test Set**: For final evaluation
 - **Metadata**: Includes source information, confidence scores, and quality metrics
 
-
-You can find it [here](https://huggingface.co/datasets/yudhiesh/cerberus-guardrails-small) on Huggingface.
+The dataset can be found [here](https://huggingface.co/datasets/yudhiesh/cerberus-guardrails-small) on Huggingface.
 
 <div style="width: 100%; overflow-x: auto; border: 1px solid #ddd; border-radius: 4px;">
 <iframe
@@ -544,22 +545,22 @@ You can find it [here](https://huggingface.co/datasets/yudhiesh/cerberus-guardra
 
 ## Exploratory Data Analysis on Synthetic Data
 
-To better understand the characteristics of our synthetic dataset, we conducted a thorough analysis using [BERTopic](https://maartengr.github.io/BERTopic/), a powerful topic modeling tool. We developed an interactive analysis notebook using [Marimo](https://marimo.io) (available in our [EDA directory](https://github.com/yudhiesh/cerberus/tree/master/eda)) to explore the patterns and distributions within our 566 examples.
+To better understand the characteristics of the synthetic dataset, a thorough analysis was conducted using [BERTopic](https://maartengr.github.io/BERTopic/), a powerful topic modeling tool. An interactive analysis notebook was developed using [Marimo](https://marimo.io) (available in the [EDA directory](https://github.com/yudhiesh/cerberus/tree/master/eda)) to explore the patterns and distributions within the 566 examples.
 
 <div align="center">
   <figure>
     <video width="800" autoplay loop muted playsinline>
       <source src="https://user-images.githubusercontent.com/25746895/218420473-4b2bb539-9dbe-407a-9674-a8317c7fb3bf.mp4" type="video/mp4">
     </video>
-    <figcaption><em>BERTopic in action: Visualizing the dynamic clustering process of our dataset's topics</em></figcaption>
+    <figcaption><em>BERTopic in action: Visualizing the dynamic clustering process of the dataset's topics</em></figcaption>
   </figure>
 </div>
 
-> **Note**: You can explore the full interactive analysis by clicking the green "Open Fullscreen ↗" button in the visualization section below.
+> **Note**: The full interactive analysis can be explored by clicking the green "Open Fullscreen ↗" button in the visualization section below.
 
-The analysis revealed several interesting insights about our dataset's structure:
+The analysis revealed several interesting insights about the dataset's structure:
 
-1. **Topic Distribution**: Using `thenlper/gte-large` embeddings and HDBSCAN clustering, we identified distinct clusters that naturally separated into safe and unsafe categories. This clustering validates our synthetic data generation approach, showing clear semantic boundaries between benign and potentially harmful content.
+1. **Topic Distribution**: Using `thenlper/gte-large` embeddings and HDBSCAN clustering, distinct clusters were identified that naturally separated into safe and unsafe categories. This clustering validates the synthetic data generation approach, showing clear semantic boundaries between benign and potentially harmful content.
 
 2. **Safe Content Clusters**: The safe examples formed coherent topic groups around legitimate technical domains:
    - Streaming systems (Kafka, real-time processing)
@@ -571,9 +572,9 @@ The analysis revealed several interesting insights about our dataset's structure
    - Network security exploits
    - Database injection attempts
    - System compromise techniques
-   This clustering helps validate our unsafe example generation and ensures comprehensive coverage of potential threats.
+   This clustering helps validate the unsafe example generation and ensures comprehensive coverage of potential threats.
 
-The interactive visualization below shows the topic distribution and similarity relationships across our dataset. The clear separation between safe and unsafe clusters suggests our synthetic data generation process successfully created distinct, well-labeled examples suitable for training safety classifiers.
+The interactive visualization below shows the topic distribution and similarity relationships across the dataset. The clear separation between safe and unsafe clusters suggests the synthetic data generation process successfully created distinct, well-labeled examples suitable for training safety classifiers.
 
 <div style="width: 100%; position: relative;">
   <div style="position: absolute; top: 10px; right: 10px; z-index: 10;">
@@ -594,25 +595,25 @@ The interactive visualization below shows the topic distribution and similarity 
 
 # Final Thoughts
 
-Key takeaways from the synthetic data generation pipeline:
+After building this synthetic data generation pipeline, here are some key insights learned:
 
-- **Tool Integration**: The project successfully orchestrated multiple specialized tools ([Distilabel](https://distilabel.argilla.io/latest/), [SemHash](https://github.com/MinishLab/semhash), [DeepEval](https://deepeval.com/), [Argilla](https://argilla.io/), [BERTopic](https://maartengr.github.io/BERTopic/)), though this required significant integration effort.
+- **Tool Integration**: The project successfully orchestrated multiple specialized tools ([Distilabel](https://distilabel.argilla.io/latest/), [SemHash](https://github.com/MinishLab/semhash), [DeepEval](https://deepeval.com/), [Argilla](https://argilla.io/), [BERTopic](https://maartengr.github.io/BERTopic/)), though this required significant integration effort. It's like building a complex machine where each part needs to work perfectly with the others.
 
-- **Marimo Notebooks**: [Marimo's](https://marimo.io) intuitive interface and out-of-the-box beautiful visualizations significantly streamlined the exploratory data analysis. The notebook's reactive cells and clean aesthetics made complex topic modeling results immediately accessible and visually appealing.
+- **Marimo Notebooks**: [Marimo's](https://marimo.io) intuitive interface and out-of-the-box beautiful visualizations significantly streamlined the exploratory data analysis. The notebook's reactive cells and clean aesthetics made complex topic modeling results immediately accessible and visually appealing. It's a game-changer for data exploration!
 
-- **Cost Considerations**: The project incurred approximately $20-25 in API calls during experimentation to produce the final 700+ row dataset. This relatively high cost for a small dataset emphasizes the importance of efficient development practices.
+- **Cost Considerations**: The project incurred approximately $20-25 in API calls during experimentation to produce the final 700+ row dataset. This relatively high cost for a small dataset emphasizes the importance of efficient development practices. Every API call counts!
 
-- **Caching is Critical**: [Distilabel's](https://distilabel.argilla.io/latest/) built-in caching saved significant costs during pipeline development and testing. Future improvements should explore prompt-level caching since the main context templates remain constant.
+- **Caching is Critical**: [Distilabel's](https://distilabel.argilla.io/latest/) built-in caching saved significant costs during pipeline development and testing. Future improvements should explore prompt-level caching since the main context templates remain constant. It's like having a smart memory system that saves you from repeating expensive operations.
 
-- **Quality vs. Scale**: While the pipeline achieved high-quality synthetic data, scaling beyond a few thousand examples requires careful cost management and optimization strategies.
+- **Quality vs. Scale**: While the pipeline achieved high-quality synthetic data, scaling beyond a few thousand examples requires careful cost management and optimization strategies. It's a delicate balance between quantity and quality.
 
-- **Systematic Dataset Generation**: The current implementation, while functional, needs a more structured approach for large-scale deployment. Future iterations should focus on reproducibility, better pipeline orchestration, and clearer documentation of generation parameters and decisions.
+- **Systematic Dataset Generation**: The current implementation, while functional, needs a more structured approach for large-scale deployment. Future iterations should focus on reproducibility, better pipeline orchestration, and clearer documentation of generation parameters and decisions. Think of it as building a production line that needs to be both efficient and reliable.
 
-- **LLM-Aware Generation**: Further research is needed on making LLMs "aware" of their past generation results during the data creation process. This could potentially reduce the need for post-generation deduplication, improve dataset diversity, and lower costs by avoiding redundant generation in the first place.
+- **LLM-Aware Generation**: Further research is needed on making LLMs "aware" of their past generation results during the data creation process. This could potentially reduce the need for post-generation deduplication, improve dataset diversity, and lower costs by avoiding redundant generation in the first place. It's like teaching the model to learn from its own history.
 
 # Coming Up Next
 
-Part 2 of this series will put the synthetic dataset to the test by comparing various algorithms for prompt safety classification. The evaluation will cover different approaches—from lightweight models to sophisticated neural architectures—analyzing their performance, speed, and resource requirements to find the optimal balance for real-world deployment.
+In Part 2 of this series, the synthetic dataset will be put to the test by comparing various algorithms for prompt safety classification. The evaluation will explore different approaches—from lightweight models to sophisticated neural architectures—analyzing their performance, speed, and resource requirements to find the optimal balance for real-world deployment. Stay tuned!
 
 # References
 - [Guardrails AI](https://www.guardrailsai.com/docs)
