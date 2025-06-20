@@ -21,6 +21,8 @@ jobs:
       with:
         base-url-path: https://yudhiesh.github.io/
         path-to-root: docs
+        additional-extensions: md markdown html
+
 
     - name: Output stats
       run: |
