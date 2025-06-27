@@ -64,18 +64,3 @@ sitemap:
     - "/index.html"
   change_frequency_name: "change_frequency"
   priority_name: "priority"
-
-exclude:
-  - .sass-cache/
-  - .jekyll-cache/
-  - gemfiles/
-  - Gemfile
-  - Gemfile.lock
-  - node_modules/
-  - vendor/
-  - src/
-  - "*.markdown"  # Don't include raw markdown files
-  - "*.md"  # Don't include raw markdown files
-  - README.md
-  - LICENSE
-  - CNAME
