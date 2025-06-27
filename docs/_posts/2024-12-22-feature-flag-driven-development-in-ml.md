@@ -1,8 +1,12 @@
 ---
 layout: post
 title: "Feature Flag Driven Development in Machine Learning"
+description: "Learn how to implement feature flags in ML systems for safer deployments, A/B testing, and gradual rollouts of machine learning models"
 date: 2024-12-27 12:00:00 +0000
-tags: ml
+categories: [machine-learning, software-engineering]
+tags: [ml, feature-flags, mlops, deployment, a-b-testing, production-ml]
+excerpt: "Discover how feature flags can revolutionize your ML deployment strategy, enabling safer rollouts, easier rollbacks, and controlled experimentation in production environments"
+author: "Yudhiesh Ravindranath"
 mathjax: true
 ---
 # Table of Contents
