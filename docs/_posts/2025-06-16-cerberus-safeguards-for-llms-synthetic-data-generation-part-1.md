@@ -3,8 +3,7 @@ layout: post
 title: "Cerberus: Safeguards for Large Language Models - Synthetic Data Generation (Part 1)"
 description: "Build robust safeguards for LLMs using synthetic data generation techniques. Part 1 of a series on protecting and improving large language model deployments"
 date: 2025-06-16 16:33:48 +0000
-categories: [artificial-intelligence, llm]
-tags: [llm, synthetic-data, ai-safety, data-generation, cerberus, machine-learning, nlp]
+tags: [large-language-models, synthetic-data, ai-safety, data-generation, cerberus, machine-learning, natural-language-processing]
 excerpt: "Explore how synthetic data generation can create effective safeguards for Large Language Models, improving safety and reliability in production deployments"
 author: "Yudhiesh Ravindranath"
 series: "Cerberus LLM Safeguards"

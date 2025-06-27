@@ -3,8 +3,7 @@ layout: post
 title: "The Achilles Heel of Vector Search: Filters"
 description: "Exploring performance challenges when combining vector search with filtering in production systems"
 date: 2025-05-09
-categories: [vector-search, databases, performance]
-tags: [vector-search, mongodb, filters, performance-optimization]
+tags: [vector-search, semantic-search, filters, performance-optimization, machine-learning]
 image: https://howitworks.wpengine.com/wp-content/uploads/2011/11/Achilles_PD.jpg
 excerpt: "Why filters can dramatically impact vector search performance and what you can do about it"
 mathjax: true

@@ -1,0 +1,54 @@
+---
+layout: page
+title: "Tags"
+permalink: /tags.html
+---
+
+<div>
+  <p>Browse all posts by tag. Click on any tag to see related posts.</p>
+</div>
+
+<div id="tags-list">
+  <!-- Tag cloud at the top -->
+  <div class="tag-cloud">
+    <h3>All Tags</h3>
+    {% for tag in site.tags %}
+    {% assign tag_name = tag | first %}
+    {% assign tag_size = tag | last | size %}
+    <a href="#{{ tag_name | slugize }}" class="tag-cloud-item">
+      #{{ tag_name }} ({{ tag_size }})
+    </a>
+    {% endfor %}
+  </div>
+
+  <hr>
+
+  <!-- Posts organized by tag -->
+  {% for tag in site.tags %}
+  {% assign tag_name = tag | first %}
+  {% assign tag_posts = tag | last %}
+  <div class="tag-list">
+    <div id="{{ tag_name | slugize }}"></div>
+    <h3 class="post-list-heading">
+      <a name="{{ tag_name | slugize }}"></a>
+      #{{ tag_name }}
+    </h3>
+    <ul class="post-list">
+      {% for post in tag_posts %}
+      <li>
+        {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
+        <span class="post-meta">{{ post.date | date: date_format }}</span>
+        <h4>
+          <a class="post-link" href="{{ post.url | relative_url }}">
+            {{ post.title | escape }}
+          </a>
+        </h4>
+        {% if post.excerpt %}
+        <p class="post-excerpt">{{ post.excerpt | strip_html | truncate: 150 }}</p>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endfor %}
+</div>
