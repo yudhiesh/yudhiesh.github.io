@@ -52,10 +52,13 @@ We’ll also look at benchmark numbers from Faiss, Qdrant, Pinecone and Weaviate
 ---
 
 ## Throughput Across Different Vector Databases  
-![Throughput Across Different Vector Databases between filtered and non-filtered search](https://media.licdn.com/dms/image/v2/D5622AQGRCJJV2y54sQ/feedshare-shrink_2048_1536/feedshare-shrink_2048_1536/0/1723180122713?e=1749686400&v=beta&t=uDrM7_Ipu0V5opGTwrnvlaY-5rt3N8oYsWewpWBSdfo)
+![Image]({{ site.baseurl }}/images/throughput_vector.jpg)
 
 ## QPS Across Different Vector Databases  
-![QPS Across Different Vector Databases between filtered and non-filtered search](https://media.licdn.com/dms/image/v2/D5622AQG_PWx5sHzp8g/feedshare-shrink_2048_1536/feedshare-shrink_2048_1536/0/1723180122814?e=1749686400&v=beta&t=MYrgrUOS6ohyy64zJJCQD9jhbq95LgSwPB_0lHi3Z2A)
+![Image]({{ site.baseurl }}/images/latency.jpg)
+
+## Index Build Time Across Different Vector Databases  
+![Image]({{ site.baseurl }}/images/index_build_time.jpg)
 
 After running these benchmarks across six vector engines, two query modes (regular vs. 10%-filtered), and up to 16 search threads, a few clear patterns emerged:
 
