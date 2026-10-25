@@ -109,7 +109,7 @@ def check(root):
         require(article['dateModified'] == row.findtext('s:lastmod', namespaces=ns), f'Sitemap/schema dates disagree: {url}')
         require(page.meta('article:modified_time') == [article['dateModified']], f'Sharing/schema dates disagree: {url}')
         require(datetime.fromisoformat(article['dateModified']) >= datetime.fromisoformat(article['datePublished']), f'Update precedes publication: {url}')
-        visible_modified = [a.get('datetime') for t, a in page.elements if t == 'time' and a.get('itemprop') == 'dateModified']
+        visible_modified = [a.get('datetime') for t, a in page.elements if t == 'time' and 'dt-modified' in a.get('class', '').split()]
         require(not visible_modified or visible_modified == [article['dateModified']], f'Visible/schema dates disagree: {url}')
         require(any(t == 'a' and a.get('href') == '/about/' for t, a in page.elements), f'Author profile unlinked: {url}')
         for tag, attrs in page.elements:
