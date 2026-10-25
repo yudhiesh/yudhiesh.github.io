@@ -4,8 +4,8 @@ author:
   name: Yudhiesh Ravindranath
   email: yudhiesh1997@gmail.com
 description: >- 
-  Where git commits meet gradients. Tales of engineering clean code 
-  and neural nets, minus the academic jargon.
+  Notes on machine learning, the systems around it,
+  and what happens when you put them to work.
 baseurl: "" 
 url: "https://yudhiesh.github.io"
 

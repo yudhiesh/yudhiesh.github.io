@@ -70,3 +70,16 @@ are revisited; they do not need a wholesale rewrite to use the new presentation.
   keyboard focus, code overflow, equations, and any embedded notebooks.
 - Run `bundle exec jekyll build` from `docs/`.
 - Open a PR, review the diff, and merge when ready to publish.
+
+## Topics and feed compatibility
+
+Use the curated topic slugs in `_data/topics.yml`: `llm-safety`, `synthetic-data`,
+`search`, and `ml-engineering`. One or two topics per post is usually enough.
+Add a new topic only when it helps readers find a distinct body of work. Historical
+tag anchors are retained as aliases so older shared links still land in a useful section.
+
+`feed.xml` keeps the existing Atom endpoint and entry IDs, adds the chapter artwork,
+and publishes the full article with absolute links. Keep JavaScript in the layout,
+not the Markdown body. Put a static diagram and a direct link alongside interactive
+material; the feed removes scripts, frames, and video while keeping their explanatory text.
+The original static diagram sources live in `images/diagrams/` beside their PNG exports.

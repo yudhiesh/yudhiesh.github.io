@@ -1,52 +1,30 @@
 ---
 layout: page
-title: "Tags"
+title: Topics
 permalink: /tags.html
 ---
-
-<div>
-  <p>A few threads running through the notebook.</p>
-</div>
-
-<div id="tags-list">
-  <!-- Tag cloud at the top -->
-  <div class="tag-cloud">
-    <h3>Topics</h3>
-    {% for tag in site.tags %}
-    {% assign tag_name = tag | first %}
-    {% assign tag_size = tag | last | size %}
-    <a href="#{{ tag_name | slugify }}" class="tag-cloud-item">
-      #{{ tag_name }} ({{ tag_size }})
-    </a>
-    {% endfor %}
-  </div>
-
-  <hr>
-
-  <!-- Posts organized by tag -->
-  {% for tag in site.tags %}
-  {% assign tag_name = tag | first %}
-  {% assign tag_posts = tag | last %}
-  <div class="tag-list">
-    <h3 class="post-list-heading" id="{{ tag_name | slugify }}">
-      #{{ tag_name }}
-    </h3>
+<p>A few threads running through the notebook.</p>
+<nav class="topic-index" aria-label="Browse topics">
+  {% for topic in site.data.topics %}
+    {% assign topic_posts = site.tags[topic.slug] %}
+    {% if topic_posts.size > 0 %}<a href="#{{ topic.slug }}" class="tag-cloud-item">{{ topic.name | escape }} <span class="topic-count">{{ topic_posts.size }}</span></a>{% endif %}
+  {% endfor %}
+</nav>
+{% for topic in site.data.topics %}
+  {% assign topic_posts = site.tags[topic.slug] %}
+  {% if topic_posts.size > 0 %}
+  <section class="tag-list" aria-labelledby="{{ topic.slug }}">
+    {% for alias in topic.aliases %}<span id="{{ alias }}" class="topic-alias" aria-hidden="true"></span>{% endfor %}
+    <h2 id="{{ topic.slug }}">{{ topic.name | escape }}</h2>
     <ul class="post-list">
-      {% for post in tag_posts %}
+      {% for post in topic_posts %}
       <li>
-        {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
-        <span class="post-meta">{{ post.date | date: date_format }}</span>
-        <h4>
-          <a class="post-link" href="{{ post.url | relative_url }}">
-            {{ post.title | escape }}
-          </a>
-        </h4>
-        {% if post.excerpt %}
-        <p class="post-excerpt">{{ post.excerpt | strip_html | truncate: 150 }}</p>
-        {% endif %}
+        <time class="post-meta" datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%b %-d, %Y' }}</time>
+        <h3><a class="post-link" href="{{ post.url | relative_url }}">{{ post.title | escape }}</a></h3>
+        <p class="post-excerpt">{{ post.excerpt | strip_html | normalize_whitespace | escape }}</p>
       </li>
       {% endfor %}
     </ul>
-  </div>
-  {% endfor %}
-</div>
+  </section>
+  {% endif %}
+{% endfor %}

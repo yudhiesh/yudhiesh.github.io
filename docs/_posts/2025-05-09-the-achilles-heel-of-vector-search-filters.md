@@ -3,15 +3,12 @@ layout: post
 title: "The Achilles Heel of Vector Search: Filters"
 description: "Exploring performance challenges when combining vector search with filtering in production systems"
 date: 2025-05-09
-tags: [vector-search, semantic-search, filters, performance-optimization, machine-learning]
+tags: [search]
 image: https://howitworks.wpengine.com/wp-content/uploads/2011/11/Achilles_PD.jpg
 excerpt: "Why filters can dramatically impact vector search performance and what you can do about it"
+modified_date: 2026-10-25
 mathjax: true
 ---
-
-<script async
-  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML">
-</script>
 
 <details class="post-toc" markdown="1">
 <summary>In this post</summary>

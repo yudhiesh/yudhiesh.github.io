@@ -32,3 +32,10 @@ link automatically.
 
 See [the editorial guide](docs/EDITORIAL.md) for the art direction, reusable art
 prompt, writing style, and a small pre-publish checklist.
+
+## Validate a build
+
+After building from `docs/`, run `python3 scripts/check_site.py docs/_site` from
+the repository root. The PR workflow runs the same checks against its output.
+This checks the feed as XML, entry IDs and URLs, portable artwork and diagrams,
+article anchors, topic aliases, and the current About link.

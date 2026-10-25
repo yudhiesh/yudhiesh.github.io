@@ -5,6 +5,7 @@ on:
     paths:
       - 'docs/**'
       - '.github/workflows/check-site.yml'
+      - 'scripts/check_site.py'
   workflow_dispatch:
 
 permissions:
@@ -20,6 +21,8 @@ jobs:
         with:
           source: ./docs
           destination: ./_site
+      - name: Check navigation and feed compatibility
+        run: python3 scripts/check_site.py _site
       - name: Upload preview for review
         uses: actions/upload-artifact@v4
         with:
