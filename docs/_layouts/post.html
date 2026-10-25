@@ -1,49 +1,26 @@
 ---
 layout: base
 ---
-
-<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
-
+<article class="post h-entry" itemscope itemtype="https://schema.org/BlogPosting">
+  {% include post-art.html %}
   <header class="post-header">
+    {% if page.series %}<p class="eyebrow">{{ page.series | escape }}{% if page.part %} · Part {{ page.part }}{% endif %}</p>{% endif %}
     <h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
+    {% if page.subtitle %}<p class="post-subtitle">{{ page.subtitle | escape }}</p>{% endif %}
+    {% assign words = content | strip_html | number_of_words %}
+    {% assign minutes = words | plus: 219 | divided_by: 220 %}
     <p class="post-meta">
-      {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
-      <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
-        {{ page.date | date: date_format }}
-      </time>
-      {%- if page.modified_date -%}
-      ~
-      {%- assign mdate = page.modified_date | date_to_xmlschema -%}
-      <time class="dt-modified" datetime="{{ mdate }}" itemprop="dateModified">
-        {{ mdate | date: date_format }}
-      </time>
-      {%- endif -%}
-      {%- if page.author -%}
-      • {% for author in page.author %}
-      <span itemprop="author" itemscope itemtype="http://schema.org/Person">
-        <span class="p-author h-card" itemprop="name">{{ author }}</span></span>
-      {%- if forloop.last == false %}, {% endif -%}
-      {% endfor %}
-      {%- endif -%}
+      <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">{{ page.date | date: '%B %-d, %Y' }}</time>
+      <span aria-hidden="true"> · </span>{{ minutes }} min read
+      {% if page.author %}<span aria-hidden="true"> · </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span class="p-author h-card" itemprop="name">{{ page.author | join: ', ' | escape }}</span></span>{% endif %}
+      {% if page.modified_date %}<br>Updated <time class="dt-modified" datetime="{{ page.modified_date | date_to_xmlschema }}" itemprop="dateModified">{{ page.modified_date | date: '%B %-d, %Y' }}</time>{% endif %}
     </p>
-
-    {%- if page.tags -%}
-    <div class="post-tags">
-      <span class="tag-icon">🏷️</span> Tags:
-      {% for tag in page.tags %}
-      <a href="{{ site.baseurl }}/tags.html#{{ tag | slugize }}" class="post-tag">#{{ tag }}</a>
-      {% endfor %}
-    </div>
-    {%- endif -%}
   </header>
-
-  <div class="post-content e-content" itemprop="articleBody">
-    {{ content }}
-  </div>
-
-  {%- if site.disqus.shortname -%}
-  {%- include disqus_comments.html -%}
-  {%- endif -%}
-
+  <div class="post-content e-content" itemprop="articleBody">{{ content }}</div>
+  <footer class="post-end">
+    {% if page.tags.size > 0 %}<nav class="post-tags" aria-label="Post topics">{% for tag in page.tags %}<a href="{{ '/tags.html' | relative_url }}#{{ tag | slugify }}" class="post-tag">{{ tag | escape }}</a>{% endfor %}</nav>{% endif %}
+    <a class="back-link" href="{{ '/' | relative_url }}">← All writing</a>
+  </footer>
+  {% if site.disqus.shortname %}{% include disqus_comments.html %}{% endif %}
   <a class="u-url" href="{{ page.url | relative_url }}" hidden></a>
 </article>

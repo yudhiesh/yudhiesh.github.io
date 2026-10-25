@@ -1,0 +1,7 @@
+{% assign artwork = page.artwork | default: site.post_artwork %}
+{% if artwork %}
+<figure class="chapter-art">
+  <img src="{{ artwork | relative_url }}" alt="{{ page.artwork_alt | default: 'An indigo botanical engraving' | escape }}" width="480" height="480" fetchpriority="high" decoding="async">
+  {% if page.artwork_caption %}<figcaption>{{ page.artwork_caption | escape }}</figcaption>{% endif %}
+</figure>
+{% endif %}

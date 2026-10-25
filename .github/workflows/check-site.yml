@@ -1,0 +1,28 @@
+name: Check Jekyll site
+
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - '.github/workflows/check-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build with GitHub Pages dependencies
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./docs
+          destination: ./_site
+      - name: Upload preview for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: jekyll-preview
+          path: _site/
+          retention-days: 7

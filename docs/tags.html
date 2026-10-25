@@ -5,17 +5,17 @@ permalink: /tags.html
 ---
 
 <div>
-  <p>Browse all posts by tag. Click on any tag to see related posts.</p>
+  <p>A few threads running through the notebook.</p>
 </div>
 
 <div id="tags-list">
   <!-- Tag cloud at the top -->
   <div class="tag-cloud">
-    <h3>All Tags</h3>
+    <h3>Topics</h3>
     {% for tag in site.tags %}
     {% assign tag_name = tag | first %}
     {% assign tag_size = tag | last | size %}
-    <a href="#{{ tag_name | slugize }}" class="tag-cloud-item">
+    <a href="#{{ tag_name | slugify }}" class="tag-cloud-item">
       #{{ tag_name }} ({{ tag_size }})
     </a>
     {% endfor %}
@@ -28,9 +28,7 @@ permalink: /tags.html
   {% assign tag_name = tag | first %}
   {% assign tag_posts = tag | last %}
   <div class="tag-list">
-    <div id="{{ tag_name | slugize }}"></div>
-    <h3 class="post-list-heading">
-      <a name="{{ tag_name | slugize }}"></a>
+    <h3 class="post-list-heading" id="{{ tag_name | slugify }}">
       #{{ tag_name }}
     </h3>
     <ul class="post-list">

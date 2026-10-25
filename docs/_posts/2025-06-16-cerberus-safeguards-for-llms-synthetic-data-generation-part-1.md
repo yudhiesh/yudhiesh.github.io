@@ -4,11 +4,14 @@ title: "Cerberus: Safeguards for Large Language Models - Synthetic Data Generati
 description: "Build robust safeguards for LLMs using synthetic data generation techniques. Part 1 of a series on protecting and improving large language model deployments"
 date: 2025-06-16 16:33:48 +0000
 tags: [large-language-models, synthetic-data, ai-safety, data-generation, cerberus, machine-learning, natural-language-processing]
-excerpt: "Explore how synthetic data generation can create effective safeguards for Large Language Models, improving safety and reliability in production deployments"
+excerpt: "A practical look at building an LLM safety dataset: generating examples, removing duplicates, and figuring out which labels to trust."
 author: "Yudhiesh Ravindranath"
 series: "Cerberus LLM Safeguards"
 part: 1
-image: https://images.ctfassets.net/m3d2dwoc9jko/7J8GNK4PzsadFlnX0NaimC/e95591bc9803ee811201492556727fb2/cerberus-greek-creature.jpg
+image: /images/art/cerberus.webp
+artwork: /images/art/cerberus.webp
+artwork_alt: "An indigo engraving of a gentle three-headed Cerberus guarding a flowering branch"
+subtitle: "Building a small guardian starts with better examples."
 mathjax: true
 ---
 
@@ -22,7 +25,8 @@ mathjax: true
 </script>
 
 
-# Table of Contents
+<details class="post-toc" markdown="1">
+<summary>In this post</summary>
 * [Introduction](#introduction)
 * [Safeguards](#safeguards)
   * [What are LLM Safeguards?](#what-are-llm-safeguards)
@@ -59,20 +63,15 @@ mathjax: true
 * [References](#references)
 
 
+</details>
+
 # Introduction
 
-<div align="center">
-  <figure>
-  <img src="https://images.ctfassets.net/m3d2dwoc9jko/7J8GNK4PzsadFlnX0NaimC/e95591bc9803ee811201492556727fb2/cerberus-greek-creature.jpg" alt="Cerberus" width="800" />
-  <figcaption><em>Meet Cerberus, the three-headed guardian of the underworld's gates - our inspiration for protecting LLMs</em></figcaption>
-  </figure>
-</div>
+Getting an LLM to answer questions is the easy part. Deciding which questions it should answer takes a little more work.
 
-Imagine you're at OpenAI in late 2022, just after launching ChatGPT. The excitement is palpable - users are amazed by this new frontier of AI that seems to be one big step towards AGI. The model can write poetry, debug code, explain complex concepts, and engage in thoughtful conversation. It's a thrilling time!
+For this project, I wanted to build a small model that checks prompts before they reach the main LLM. I called it Cerberus, after the three-headed guardian of the underworld. Ours has a quieter job: let useful requests through and catch the ones that need a closer look.
 
-**But then reality hits: when you give users the freedom to ask anything, they will ASK ANYTHING.**
-
-Within days, social media explodes with screenshots of users who have found creative ways to circumvent the model's safety guidelines. They're sharing "jailbreak" prompts that trick the AI into roleplaying as unrestricted chatbots, providing inappropriate content, or bypassing ethical constraints through clever prompt engineering.
+Before training anything, though, we need examples. This first post follows the dataset from generated prompts through deduplication, automated checks, and human review. Along the way, we'll look at where the tools help and where their judgments disagree.
 
 <div align="center">
 <figure>

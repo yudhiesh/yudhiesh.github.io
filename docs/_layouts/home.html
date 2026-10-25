@@ -1,0 +1,26 @@
+---
+layout: base
+---
+<div class="home">
+  <header class="notebook-intro">
+    <img class="home-art" src="{{ '/images/art/ginkgo.webp' | relative_url }}" alt="An indigo engraving of a ginkgo branch" width="480" height="480" decoding="async">
+    <p class="eyebrow">An engineering notebook</p>
+    <h1>Bits &amp; Backprops</h1>
+    <p class="intro-copy">Notes on machine learning, the systems around it, and what happens when you put them to work.</p>
+    <p class="intro-byline">By {{ site.author.name | escape }} · Kuala Lumpur</p>
+  </header>
+  {{ content }}
+  <section aria-labelledby="writing-heading">
+    <div class="section-label"><h2 id="writing-heading">Writing</h2><a href="{{ '/feed.xml' | relative_url }}">Follow via RSS ↗</a></div>
+    <ul class="post-list">
+      {% for post in site.posts %}
+      <li>
+        <time class="post-meta" datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%b %-d, %Y' }}</time>
+        <h3><a class="post-link" href="{{ post.url | relative_url }}">{{ post.title | escape }}</a></h3>
+        <p class="post-excerpt">{{ post.excerpt | strip_html | normalize_whitespace | escape }}</p>
+        {% if post.series %}<p class="series-label">{{ post.series | escape }} · Part {{ post.part }}</p>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>

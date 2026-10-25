@@ -1,0 +1,72 @@
+# The notebook's editorial direction
+
+## The plan
+
+1. Establish a quiet, book-like reading surface: warm paper, charcoal text, indigo
+   links, generous space, and a roughly 700px text column. Use system Georgia for
+   literary type without a font download. Keep metadata and navigation in a small
+   system sans serif. Use solid backgrounds and thin rules rather than cards.
+2. Open every post with a small engraved illustration. Cerberus gets its own
+   guardian; other posts inherit a ginkgo sprig until they have a subject of their
+   own. This avoids blocking publication on commissioning new art.
+3. Keep a simple chronological homepage. Titles and short, useful excerpts should
+   do the work. Topics and RSS remain easy to find. Keep diagrams, code, tables,
+   and embeds readable on phones.
+4. Publish through the existing Markdown → PR → GitHub Pages workflow. Use the
+   post template rather than hand-copying layout markup into every article.
+5. For the next posts, start with one real question from your work. Keep a small
+   backlog of questions, experiments, and surprises; publish when there is a
+   useful result rather than padding a schedule. A follow-up to Cerberus can
+   begin with the classifier experiment and the errors worth investigating.
+
+Inspired by the quiet chapter-opener format at https://www.k-a.in/AttnRes.html.
+The illustrations, copy, and implementation here are original; no source art is reused.
+
+## Art direction
+
+Antique natural-history engravings: delicate crosshatching, muted indigo ink,
+transparent backgrounds, and one clear subject. Small, centered, and uncropped
+above the title, not a full-width hero. Avoid text in images. Start with a square
+canvas, leave generous margins, and export a transparent WebP around 480px square.
+Keep the same ink and technique as the subject changes between posts. Aim for
+under 100KB per opener; check its silhouette at the actual 160–190px display size.
+
+Reusable image prompt:
+
+> An original editorial chapter-opener engraving of [one subject connected to
+> the post]. Antique natural-history copperplate etching, fine crosshatching
+> and stippling, muted indigo ink. Quiet, thoughtful, dignified. A single centered
+> subject on a square transparent canvas, generous negative space, whole subject
+> visible, legible at 160 pixels wide. No frame, text, watermark, or background scene.
+
+Current artwork was created with the built-in image generator. Cerberus's subject
+brief was a gentle three-headed dog guarding a small flowering branch; the shared
+opener's subject brief was a slender ginkgo sprig with five fan-shaped leaves.
+Assets live in `docs/images/art/`. Add a credit in `artwork_caption` if future art
+requires attribution. Do not hotlink someone else's illustration.
+
+## Voice
+
+Write like you are talking to a curious engineer over coffee. Use first person
+when describing your own work, name the actual problem, and explain the result
+before listing tools. Prefer short paragraphs and concrete examples. A small
+aside is welcome; a joke in every heading is not required.
+
+Avoid launch-style hype, shouted emphasis, and generic claims such as “robust,”
+“revolutionary,” or “production-ready” without evidence. Include what failed,
+what remains uncertain, and the circumstances under which the result applies.
+A reader should feel invited to think with you.
+
+The Cerberus introduction is the first example of this voice. Its remaining
+technical sections and older posts can be edited gradually as their experiments
+are revisited; they do not need a wholesale rewrite to use the new presentation.
+
+## Before publishing
+
+- Replace the template's title, date, excerpt, description, and tags.
+- Use `artwork_alt` to describe new art. Keep `image` separate from `artwork` when
+  the sharing image should differ. Never put essential information only in art.
+- Preview the homepage, article, and its topic links. Check a narrow phone view,
+  keyboard focus, code overflow, equations, and any embedded notebooks.
+- Run `bundle exec jekyll build` from `docs/`.
+- Open a PR, review the diff, and merge when ready to publish.

@@ -1,0 +1,10 @@
+<header class="site-header">
+  <div class="wrapper header-inner">
+    <a class="site-title" rel="author" href="{{ '/' | relative_url }}">{{ site.title | escape }}</a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a class="page-link" href="{{ '/' | relative_url }}"{% if page.layout == 'home' %} aria-current="page"{% endif %}>Writing</a>
+      <a class="page-link" href="{{ '/tags.html' | relative_url }}"{% if page.url == '/tags.html' %} aria-current="page"{% endif %}>Topics</a>
+      <a class="page-link" href="{{ '/about/' | relative_url }}"{% if page.url == '/about/' %} aria-current="page"{% endif %}>About</a>
+    </nav>
+  </div>
+</header>

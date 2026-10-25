@@ -8,7 +8,8 @@ excerpt: "Discover how feature flags can revolutionize your ML deployment strate
 author: "Yudhiesh Ravindranath"
 mathjax: true
 ---
-# Table of Contents
+<details class="post-toc" markdown="1">
+<summary>In this post</summary>
 - [Overview](#overview)
 - [How Search Works?](#how-search-works)
 - [Semantic Search vs Keyword Search](#semantic-search-vs-keyword-search)
@@ -24,6 +25,8 @@ mathjax: true
   - [What are Feature Flags?](#what-are-feature-flags)
   - [Integrating Feature Flag Platforms into our ML System](#integrating-feature-flag-platforms-into-our-ml-system)
 - [References](#references)
+
+</details>
 
 # Overview
 In my prior role I was working on building out our companies search engine where users could search across our entire product suite and hopefully showcase answers/products that are relevant to the users search query. This system was interesting in the sense that it combined regular search that you would experience with using Google Search + GenAI, much like how Google Search works right now:
