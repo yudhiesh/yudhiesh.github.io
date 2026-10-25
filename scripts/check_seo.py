@@ -65,6 +65,8 @@ def check(root):
     rows = ET.parse(root / 'sitemap.xml').getroot().findall('s:url', ns)
     urls = [row.findtext('s:loc', namespaces=ns) for row in rows]
     require(len(urls) == len(set(urls)), 'Duplicate sitemap URLs')
+    core_pages = {'https://yudhiesh.github.io/', 'https://yudhiesh.github.io/about/', 'https://yudhiesh.github.io/tags.html'}
+    require(core_pages.issubset(urls), 'A core page is missing from the sitemap')
     descriptions, titles = set(), set()
     article_count = 0
     for row in rows:
