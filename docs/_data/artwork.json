@@ -1,0 +1,12 @@
+{
+  "vector-search": {
+    "asset": "/images/art/vector-search.webp",
+    "generator": "built-in image generator",
+    "prompt": "Use case: illustration-story. Asset: original small chapter-opener artwork for an elegant engineering blog article about why metadata filters slow vector search. Subject: one antique round laboratory sieve, slightly tilted to show its fine wire mesh, with a few smooth pebbles resting inside, a quiet visual metaphor for filtering. Style: antique natural-history copperplate engraving, very fine crosshatching and stippling, monochrome muted indigo ink matching a literary journal's botanical and Cerberus engravings. Whole object centered on square canvas, generous empty margins, clear simple silhouette legible at 160px wide. Calm, thoughtful, tactile print detail. Genuine transparent background; no paper rectangle, scene, frame, text, numbers, logo, or watermark."
+  },
+  "feature-flags": {
+    "asset": "/images/art/feature-flags.webp",
+    "generator": "built-in image generator",
+    "prompt": "Use case: illustration-story. Asset: original small chapter-opener artwork for an elegant engineering blog article titled Shipping ML with Feature Flags. Subject: a small classic single-masted sailing boat seen in three-quarter profile, with one graceful sail and a clearly visible triangular signal pennant at the masthead, a quiet metaphor for shipping changes with flags. Style: antique nautical copperplate engraving, fine crosshatching and stippling, monochrome muted indigo ink matching a literary journal's botanical and Cerberus engravings. Whole boat and mast visible, centered on square canvas with generous empty margins, clear silhouette legible at 160px wide. Calm, dignified, tactile print detail. Isolated boat, genuine transparent background; no water scene, sky, frame, text, letters, numbers, logo, or watermark."
+  }
+}

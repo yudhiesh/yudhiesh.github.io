@@ -8,6 +8,9 @@ tags: [search, ml-engineering]
 excerpt: "How feature flags helped me change a search system gradually, test ideas, and keep a way back."
 author: "Yudhiesh Ravindranath"
 modified_date: 2026-10-25
+image: /images/art/feature-flags.webp
+artwork: /images/art/feature-flags.webp
+artwork_alt: "An indigo engraving of a small sailing boat with a signal pennant"
 mathjax: true
 ---
 <details class="post-toc" markdown="1">
