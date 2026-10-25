@@ -18,7 +18,7 @@ mathjax: true
 - [How Semantic Search Works?](#how-semantic-search-works)
   - [Word Embeddings](#word-embeddings)
   - [Vector Databases](#vector-databases)
-- [Semantic Search Implementation](#how-semantic-search-works-1)
+- [Semantic Search Implementation](#semantic-search-implementation)
   - [Offline](#offline)
   - [Online](#online)
   - [Big Picture of Semantic Search](#big-picture-of-semantic-search)
@@ -141,6 +141,8 @@ There are a ton of vector database options out there, largely split into purpose
 ![](https://media.licdn.com/dms/image/D5612AQFPNZxykG6Enw/article-cover_image-shrink_600_2000/0/1688152025187?e=2147483647&v=beta&t=_iGesp-lS22luisdy9BqvIXaYlTx8EfIQNgL4taflQY)
 
 Picking a vector database to use warrants its own blog post due to the sheer number of options and considerations that need to take place.
+
+## Semantic Search Implementation
 
 Going back to Eugene's terrific blog post we can see how a Semantic Search fits into the big picture by looking at the Retrieval section covering the offline and online side of search. 
 ![Image]({{ site.baseurl }}/images/Screenshot 2024-12-22 at 18.33.38.png)

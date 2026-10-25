@@ -1,5 +1,6 @@
 """Check generated navigation and feed compatibility, without external requests."""
 import sys
+from datetime import datetime
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlparse
@@ -28,6 +29,8 @@ def main():
     require(feed.findtext('a:title', namespaces=ns) == 'Bits & Backprops', 'Feed title was escaped incorrectly')
     entries = feed.findall('a:entry', ns)
     require(entries, 'Feed has no posts')
+    dates = [datetime.fromisoformat(e.findtext('a:published', namespaces=ns)) for e in entries]
+    require(dates == sorted(dates, reverse=True), 'Feed posts are not newest first')
     ids = [e.findtext('a:id', namespaces=ns) for e in entries]
     require(len(ids) == len(set(ids)), 'Feed has duplicate entry IDs')
     for entry in entries:
