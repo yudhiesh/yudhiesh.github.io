@@ -1,12 +1,16 @@
 ---
 layout: post
 title: "The Achilles Heel of Vector Search: Filters"
-description: "Exploring performance challenges when combining vector search with filtering in production systems"
-date: 2025-05-09
+description: "Why metadata filters slow vector search: HNSW and IVF strategies, database benchmarks, and the trade-offs behind pre-filtering and post-filtering."
+date: 2025-05-09 00:00:00 +0000
 tags: [search]
-image: /images/art/vector-search.webp
+image:
+  path: /images/art/vector-search.webp
+  width: 480
+  height: 480
+  alt: "An indigo engraving of an antique sieve holding a few smooth pebbles"
 excerpt: "Why filters can dramatically impact vector search performance and what you can do about it"
-modified_date: 2026-10-25
+last_modified_at: 2026-10-25
 artwork: /images/art/vector-search.webp
 artwork_alt: "An indigo engraving of an antique sieve holding a few smooth pebbles"
 mathjax: true
@@ -29,7 +33,7 @@ mathjax: true
 
 </details>
 
-# Overview
+## Overview
 ![Achilles Heel](https://howitworks.wpengine.com/wp-content/uploads/2011/11/Achilles_PD.jpg)
 
 Back in Q2 2024 at my previous role, I set out to answer what should have been a simple question for the whole company:  
@@ -53,13 +57,13 @@ We’ll also look at benchmark numbers from Faiss, Qdrant, Pinecone and Weaviate
 
 ---
 
-## Throughput Across Different Vector Databases  
+### Throughput Across Different Vector Databases
 ![Image]({{ site.baseurl }}/images/throughput_vector.jpg)
 
-## QPS Across Different Vector Databases  
+### QPS Across Different Vector Databases
 ![Image]({{ site.baseurl }}/images/latency.jpg)
 
-## Index Build Time Across Different Vector Databases  
+### Index Build Time Across Different Vector Databases
 ![Image]({{ site.baseurl }}/images/index_build_time.jpg)
 
 After running these benchmarks across six vector engines, two query modes (regular vs. 10%-filtered), and up to 16 search threads, a few clear patterns emerged:
@@ -76,7 +80,7 @@ After running these benchmarks across six vector engines, two query modes (regul
 
 **Bottom line**: Engines with **in-algorithm filtering** not only preserve recall—they actually get faster, more predictable searches when filters prune the workload. Engines relying on pre- or post-filter fallbacks may see little benefit or even performance degradation when filters are applied.
 
-# Filtering Strategies in ANN Search
+## Filtering Strategies in ANN Search
 
 In vector search, a *filter* means we only want results from a subset of vectors (e.g. those whose category is “laptop”). Formally, vector filtering **returns** only vectors that meet a criterion and ignores all others. There are three broad strategies to combine filtering with ANN (Approximate Nearest Neighbor) search:
 
@@ -90,20 +94,20 @@ In vector search, a *filter* means we only want results from a subset of vectors
   Modify the index or search logic so the ANN search itself only traverses or returns filtered vectors—e.g. Qdrant adds extra graph links, Weaviate’s ACORN does two-hop expansions, Pinecone merges metadata and vector indexes. This aims to combine pre-filter accuracy with ANN speed in a single pass.
 
 
-# Filtering in HNSW (Graph-Based Indexes)
+## Filtering in HNSW (Graph-Based Indexes)
 ![](https://www.pinecone.io/_next/image/?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fvr8gru94%2Fproduction%2Fd6e3a660654d9cb55f7ac137a736539e227296b6-1920x1080.png&w=1920&q=75)
 
 HNSW (Hierarchical Navigable Small World) is a popular graph index for ANN. Vectors are nodes connected by edges search traverses this graph greedily to find nearest neighbors. Applying filters here poses unique challenges:
 
-### Pre-Filtering
+#### Pre-Filtering
 
 Skip the graph entirely when a filter is present: retrieve the IDs matching the filter (via a secondary metadata index) and do a linear scan or a small ANN build over that subset. Fast if the filtered subset is tiny, but performance degrades linearly as selection grows.
 
-### Post-Filtering
+#### Post-Filtering
 
 Run standard HNSW ignoring the filter, then discard non-matching neighbors. To ensure *k* valid results, you must oversample (e.g. request 10× *k* candidates if only 10 % match). This wastes distance computations and can miss results under tight filters.
 
-### Integrated Filtering
+#### Integrated Filtering
 
 Make the HNSW graph itself filter-aware. 
 
@@ -114,7 +118,7 @@ Approaches include:
 * **Filterable HNSW (Qdrant):** add extra intra-category links so filtered nodes don’t break graph connectivity.
 * **ACORN (Weaviate):** maintain unpruned graph edges and use two-hop jumps to skip filtered-out nodes without disconnecting the graph.
 
-#### HNSW Filtering Comparison
+##### HNSW Filtering Comparison
 
 | Approach       | Recall            | Latency                  | Memory Overhead           | Complexity                |
 | -------------- | ----------------- | ------------------------ | ------------------------- | ------------------------- |
@@ -123,24 +127,24 @@ Approaches include:
 | Integrated     | ≈ 100 %           | Near unfiltered (pruned) | High (extra links, edges) | High (algorithmic change) |
 
 
-# Filtering in IVF and IVF-PQ (Inverted Indexes)
+## Filtering in IVF and IVF-PQ (Inverted Indexes)
 
 ![](https://miro.medium.com/v2/resize:fit:877/1*5EyBpJ2H0jQkKFpIDIPhAg.png)
 IVF (Inverted File) clusters data into coarse buckets IVF-PQ adds vector compression. Filtering here mirrors HNSW strategies but at the cluster level:
 
-### Pre-Filtering
+#### Pre-Filtering
 
 Partition the IVF index by filter value (one index per category) or retrieve IDs via a metadata index and scan only those buckets. Efficient for tiny subsets impractical at scale or high-cardinality.
 
-### Post-Filtering
+#### Post-Filtering
 
 Perform standard IVF search (probe *m* nearest centroids), then drop non-matching items. Requires increasing `nprobe` under strict filters, which raises latency.
 
-### Integrated Filtering
+#### Integrated Filtering
 
 Tag centroids with filter values and skip entire clusters that contain no valid vectors. This single-stage approach prunes the search space upfront, combining accuracy with speed.
 
-#### IVF / IVF-PQ Filtering Comparison
+##### IVF / IVF-PQ Filtering Comparison
 
 | Approach       | Recall   | Latency                                 | Memory/Index Overhead   | Complexity             |
 | -------------- | -------- | --------------------------------------- | ----------------------- | ---------------------- |
@@ -149,7 +153,7 @@ Tag centroids with filter values and skip entire clusters that contain no valid 
 | Integrated     | ≈ 100 %  | Reduced by skipping irrelevant clusters | Cluster tag bitmasks    | Medium to High         |
 
 
-# How Vector Databases Support Filtering
+## How Vector Databases Support Filtering
 
 * **Faiss:** Offers ID-mask support (bitsets) to skip candidates by metadata.
 * **Pinecone:** Merges vector and metadata indexes into a single-stage filterable system.
@@ -157,7 +161,7 @@ Tag centroids with filter values and skip entire clusters that contain no valid 
 * **Weaviate:** Combines HNSW + ACORN, falling back to flat scans on tiny subsets and two-hop graph jumps otherwise.
 
 
-# Filtered vs Unfiltered Search Performance
+## Filtered vs Unfiltered Search Performance
 
 **Faiss (IVF) – NeurIPS’23 Filtered Search Track:**
 A Faiss baseline on 10 M vectors hit \~3 k QPS at 90 % recall. Optimized methods (e.g. multi-level IVF-PQ, graph hybrids) reached 30–40 k QPS at the same recall—a 10× gap.
@@ -172,7 +176,7 @@ On 1.2 M vectors (768-dim), unfiltered queries averaged 79 ms a 50 % selective f
 Qdrant’s planner picks graph filtering vs brute-force based on “filter cardinality.” 
 
 
-# Why Filtered Vector Search Is Slower than Traditional Filtering
+## Why Filtered Vector Search Is Slower than Traditional Filtering
 Given the performance challenges above, a fair question is: why is this so hard? **Relational databases** have provided fast filtering for decades using structures like B-trees, hash indexes, etc. If you ask SQL for `SELECT * FROM products WHERE category = 'laptop'` , it can use an index on the category column to fetch matching rows in almost constant time relative to the result size. So why can’t vector searches do `top_k ANN ... WHERE category='laptop'` just as easily?
 The core issue is that vector search and metadata filtering are fundamentally different operations that are not trivially compatible. A few reasons:
 
@@ -182,7 +186,7 @@ The core issue is that vector search and metadata filtering are fundamentally di
 4. **Approximation vs Exactness:** ANN trades recall for speed filters demand exact matches, forcing extra work.
 5. **Join-Like Complexity:** Filtering + similarity is akin to a join between vector and metadata indexes, which is inherently more complex.
 
-## Filter Fusion: Encoding Filters into Embeddings
+### Filter Fusion: Encoding Filters into Embeddings
 
 The FAISS team’s [implementation in the Big-ANN Benchmark](https://github.com/harsha-simhadri/big-ann-benchmarks/blob/11e82c28ce8b824a3f1687f293da3ef02a8022a2/neurips23/filter/faiss/README.md) is particularly fascinating: by using unused bits of their 64-bit IDs to encode filter logic directly inside the IVF search loop, they achieved high-throughput filtered search without metadata callbacks or additional steps.
 
@@ -449,7 +453,7 @@ Running the script on this toy RAG corpus clearly illustrates each approach:
 
 By concatenating metadata as weighted dimensions, off-the-shelf ANN can perform filtered search in one pass, eliminating extra filter logic which should give us gains in terms of latency/throughput which I will save for a separate blog post.
 
-# Limitations of Embedding-Level Filter Fusion
+## Limitations of Embedding-Level Filter Fusion
 
 While embedding-level filter fusion streamlines retrieval, it has several practical drawbacks:
 
@@ -465,7 +469,7 @@ While embedding-level filter fusion streamlines retrieval, it has several practi
 
 - **Interpretability and maintenance**: Mixing metadata with content dimensions makes embeddings harder to interpret and debug. Any change in metadata schema often requires re-indexing or modifying the fusion logic.
 
-# References
+## References
 - [Filtered Vector Search: The Importance and Behind the Scenes](https://myscale.com/blog/filtered-vector-search-in-myscale/)
 - [The Missing Where Clause in Vector Search](https://www.pinecone.io/learn/vector-search-filtering/#:~:text=The%20first%20approach%20we%20could,that%20satisfies%20our%20filter%20conditions)
 - [FAISS Paper](https://users.cs.utah.edu/~pandey/courses/cs6530/fall24/papers/vectordb/FAISS.pdf)

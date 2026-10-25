@@ -130,3 +130,8 @@ hr { margin: 2.5em 0; border: 0; border-top: 1px solid var(--rule); }
 .analysis-embed { margin: 24px 0; }
 .analysis-embed > p { margin-bottom: 14px; }
 .dataset-embed { overflow-x: auto; }
+
+.related-posts { margin: 28px 0; }
+.related-posts h2 { font-size: 23px; margin-bottom: 14px; }
+.related-posts ul { margin-left: 20px; font-size: 17px; }
+.related-posts li { margin-bottom: 10px; }

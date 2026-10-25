@@ -30,6 +30,14 @@ jobs:
           source: ./docs
           destination: ./_site
           
+      - name: Prepare search exclusions and image loading
+        run: python3 scripts/prepare_site.py _site
+
+      - name: Check SEO, navigation, feed, and artwork
+        run: |
+          python3 scripts/check_seo.py _site
+          python3 scripts/check_site.py _site
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 

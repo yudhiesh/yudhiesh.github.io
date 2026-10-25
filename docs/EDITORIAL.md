@@ -73,7 +73,11 @@ are revisited; they do not need a wholesale rewrite to use the new presentation.
   the sharing image should differ. Never put essential information only in art.
 - Preview the homepage, article, and its topic links. Check a narrow phone view,
   keyboard focus, code overflow, equations, and any embedded notebooks.
-- Run `bundle exec jekyll build` from `docs/`.
+- Use one page title and start article sections at `##`; the layout supplies H1.
+- Write a distinct search description and descriptive image alt text. Use
+  `last_modified_at` only for a real update. See `SEO.md` for the shared defaults.
+- Run `bundle exec jekyll build` from `docs/`, then the preparation and checks
+  listed in the repository README.
 - Open a PR, review the diff, and merge when ready to publish.
 
 ## Topics and feed compatibility
