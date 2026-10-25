@@ -126,3 +126,7 @@ hr { margin: 2.5em 0; border: 0; border-top: 1px solid var(--rule); }
 .tag-list .post-list > li:last-child { border-bottom: 0; }
 .embed-link { display: inline-block; background: var(--paper); border: 1px solid var(--rule); padding: 8px 14px; border-radius: 3px; font: 14px/1.5 var(--sans); }
 .post-content video { display: block; max-width: 100%; height: auto; }
+
+.analysis-embed { margin: 24px 0; }
+.analysis-embed > p { margin-bottom: 14px; }
+.dataset-embed { overflow-x: auto; }

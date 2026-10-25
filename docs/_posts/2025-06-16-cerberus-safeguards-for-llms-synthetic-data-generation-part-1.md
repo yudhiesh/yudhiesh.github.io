@@ -457,7 +457,7 @@ The final dataset is organized into:
 
 The dataset can be found [here](https://huggingface.co/datasets/yudhiesh/cerberus-guardrails-small) on Huggingface.
 
-<div style="width: 100%; overflow-x: auto; border: 1px solid #ddd; border-radius: 4px;">
+<div class="dataset-embed">
 <iframe
   src="https://huggingface.co/datasets/yudhiesh/cerberus-guardrails-small/embed/viewer/default/train"
   title="Cerberus training dataset"
@@ -477,7 +477,7 @@ To better understand the characteristics of the synthetic dataset, a thorough an
     <video width="800" autoplay loop muted playsinline>
       <source src="https://user-images.githubusercontent.com/25746895/218420473-4b2bb539-9dbe-407a-9674-a8317c7fb3bf.mp4" type="video/mp4">
     </video>
-    <figcaption><em>BERTopic in action: Visualizing the dynamic clustering process of the dataset's topics</em></figcaption>
+    <figcaption>BERTopic's topic clustering example. <a href="https://user-images.githubusercontent.com/25746895/218420473-4b2bb539-9dbe-407a-9674-a8317c7fb3bf.mp4">Watch the video</a>.</figcaption>
   </figure>
 </div>
 
@@ -501,23 +501,9 @@ The analysis revealed several interesting insights about the dataset's structure
 
 The interactive visualization below shows the topic distribution and similarity relationships across the dataset. The clear separation between safe and unsafe clusters suggests the synthetic data generation process successfully created distinct, well-labeled examples suitable for training safety classifiers.
 
-<div style="width: 100%; position: relative;">
-  <div style="position: absolute; top: 10px; right: 10px; z-index: 10;">
-    <a href="{{ '/assets/eda.html' | relative_url }}" 
-       target="_blank" 
-       class="embed-link">
-      Open analysis ↗
-    </a>
-  </div>
-  <div style="width: 100%; overflow-x: auto; border: 1px solid #ddd; border-radius: 4px;">
-    <iframe src="{{ '/assets/eda.html' | relative_url }}" 
-            title="Interactive synthetic data analysis"
-            loading="lazy"
-            width="100%"
-            height="720px"
-            frameborder="0">
-    </iframe>
-  </div>
+<div class="analysis-embed">
+  <p><a href="{{ '/assets/eda.html' | relative_url }}" target="_blank" rel="noopener" class="embed-link">Open analysis ↗</a></p>
+  <iframe src="{{ '/assets/eda.html' | relative_url }}" title="Interactive synthetic data analysis" loading="lazy" width="100%" height="720" frameborder="0"></iframe>
 </div>
 
 # Final Thoughts
