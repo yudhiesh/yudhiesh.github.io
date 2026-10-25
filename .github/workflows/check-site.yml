@@ -5,7 +5,7 @@ on:
     paths:
       - 'docs/**'
       - '.github/workflows/check-site.yml'
-      - 'scripts/check_site.py'
+      - 'scripts/**'
   workflow_dispatch:
 
 permissions:
@@ -21,6 +21,12 @@ jobs:
         with:
           source: ./docs
           destination: ./_site
+      - name: Prepare search exclusions and image loading
+        run: |
+          sudo chown -R "$(id -u):$(id -g)" _site
+          python3 scripts/prepare_site.py _site
+      - name: Check SEO
+        run: python3 scripts/check_seo.py _site
       - name: Check navigation and feed compatibility
         run: python3 scripts/check_site.py _site
       - name: Upload preview for review

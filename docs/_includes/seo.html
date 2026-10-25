@@ -1,0 +1,59 @@
+{%- assign canonical = page.canonical_url | default: page.url | absolute_url | replace: '/index.html', '/' -%}
+{%- assign visible_title = page.title | default: site.title -%}
+{%- assign search_title = page.seo_title | default: visible_title -%}
+{%- assign description = page.description | default: page.excerpt | default: site.description | strip_html | normalize_whitespace -%}
+{%- assign share_image = page.image | default: page.artwork | default: site.social_image -%}
+{%- assign image_path = share_image.path | default: share_image | absolute_url -%}
+{%- assign image_width = share_image.width | default: 480 -%}
+{%- assign image_height = share_image.height | default: 480 -%}
+{%- assign image_alt = share_image.alt | default: page.artwork_alt | default: site.social_image.alt -%}
+{%- assign is_post = false -%}
+{%- if page.layout == 'post' -%}{%- assign is_post = true -%}{%- endif -%}
+{%- assign modified = page.last_modified_at | default: page.modified_date | default: page.date -%}
+{%- assign home_url = '/' | absolute_url -%}
+{%- assign author_url = '/about/' | absolute_url -%}
+{%- assign website_id = home_url | append: '#website' -%}
+{%- assign author_id = author_url | append: '#person' -%}
+{%- assign page_id = canonical | append: '#webpage' -%}
+<title>{{ search_title | escape }}{% unless search_title == site.title %} | {{ site.title | escape }}{% endunless %}</title>
+<meta name="description" content="{{ description | escape }}">
+<meta name="author" content="{{ site.author.name | escape }}">
+<meta name="robots" content="{{ page.robots | default: 'index, follow, max-image-preview:large' | escape }}">
+<link rel="canonical" href="{{ canonical | escape }}">
+<meta property="og:site_name" content="{{ site.title | escape }}">
+<meta property="og:title" content="{{ visible_title | escape }}">
+<meta property="og:description" content="{{ description | escape }}">
+<meta property="og:url" content="{{ canonical | escape }}">
+<meta property="og:locale" content="{{ site.locale | default: 'en_MY' | escape }}">
+<meta property="og:type" content="{% if is_post %}article{% else %}website{% endif %}">
+<meta property="og:image" content="{{ image_path | escape }}">
+<meta property="og:image:width" content="{{ image_width }}">
+<meta property="og:image:height" content="{{ image_height }}">
+<meta property="og:image:alt" content="{{ image_alt | escape }}">
+<meta name="twitter:card" content="{{ page.twitter.card | default: site.twitter.card | default: 'summary' | escape }}">
+<meta name="twitter:site" content="@{{ site.twitter.username | remove: '@' | escape }}">
+<meta name="twitter:creator" content="@{{ site.author.twitter | default: site.twitter.username | remove: '@' | escape }}">
+<meta name="twitter:title" content="{{ visible_title | escape }}">
+<meta name="twitter:description" content="{{ description | escape }}">
+<meta name="twitter:image" content="{{ image_path | escape }}">
+<meta name="twitter:image:alt" content="{{ image_alt | escape }}">
+{% if is_post %}
+<meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
+<meta property="article:modified_time" content="{{ modified | date_to_xmlschema }}">
+<meta property="article:author" content="{{ author_url }}">
+{% endif %}
+{% if site.webmaster_verifications.google %}<meta name="google-site-verification" content="{{ site.webmaster_verifications.google | escape }}">{% endif %}
+{% if site.webmaster_verifications.bing %}<meta name="msvalidate.01" content="{{ site.webmaster_verifications.bing | escape }}">{% endif %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {"@type": "WebSite", "@id": {{ website_id | jsonify | replace: '</', '<\/' }}, "url": {{ home_url | jsonify | replace: '</', '<\/' }}, "name": {{ site.title | jsonify | replace: '</', '<\/' }}, "inLanguage": {{ site.lang | default: 'en' | jsonify | replace: '</', '<\/' }}},
+    {"@type": "Person", "@id": {{ author_id | jsonify | replace: '</', '<\/' }}, "name": {{ site.author.name | jsonify | replace: '</', '<\/' }}, "url": {{ author_url | jsonify | replace: '</', '<\/' }}, "sameAs": {{ site.social.links | jsonify | replace: '</', '<\/' }}{% if page.url == '/about/' %}, "jobTitle": {{ site.author.job_title | jsonify | replace: '</', '<\/' }}, "worksFor": {"@type": "Organization", "name": {{ site.author.employer | jsonify | replace: '</', '<\/' }}, "url": {{ site.author.employer_url | jsonify | replace: '</', '<\/' }}}{% endif %}},
+    {"@type": "{% if page.url == '/about/' %}AboutPage{% elsif page.url == '/' or page.url == '/tags.html' %}CollectionPage{% else %}WebPage{% endif %}", "@id": {{ page_id | jsonify | replace: '</', '<\/' }}, "url": {{ canonical | jsonify | replace: '</', '<\/' }}, "name": {{ visible_title | jsonify | replace: '</', '<\/' }}, "description": {{ description | jsonify | replace: '</', '<\/' }}, "isPartOf": {"@id": {{ website_id | jsonify | replace: '</', '<\/' }}}, "inLanguage": {{ site.lang | default: 'en' | jsonify | replace: '</', '<\/' }}{% if page.url == '/about/' %}, "mainEntity": {"@id": {{ author_id | jsonify | replace: '</', '<\/' }}}{% endif %}}
+    {% if is_post %},
+    {"@type": "BlogPosting", "@id": {{ canonical | append: '#article' | jsonify | replace: '</', '<\/' }}, "url": {{ canonical | jsonify | replace: '</', '<\/' }}, "headline": {{ visible_title | jsonify | replace: '</', '<\/' }}, "description": {{ description | jsonify | replace: '</', '<\/' }}, "datePublished": {{ page.date | date_to_xmlschema | jsonify | replace: '</', '<\/' }}, "dateModified": {{ modified | date_to_xmlschema | jsonify | replace: '</', '<\/' }}, "author": {"@type": "Person", "@id": {{ author_id | jsonify | replace: '</', '<\/' }}, "name": {{ site.author.name | jsonify | replace: '</', '<\/' }}, "url": {{ author_url | jsonify | replace: '</', '<\/' }}}, "image": {"@type": "ImageObject", "url": {{ image_path | jsonify | replace: '</', '<\/' }}, "width": {{ image_width }}, "height": {{ image_height }}, "caption": {{ image_alt | jsonify | replace: '</', '<\/' }}}, "mainEntityOfPage": {"@id": {{ page_id | jsonify | replace: '</', '<\/' }}}, "isPartOf": {"@id": {{ website_id | jsonify | replace: '</', '<\/' }}}, "inLanguage": {{ site.lang | default: 'en' | jsonify | replace: '</', '<\/' }}}
+    {% endif %}
+  ]
+}
+</script>

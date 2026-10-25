@@ -1,19 +1,24 @@
 ---
 layout: post
 title: "Cerberus: Building an LLM Guardian"
+seo_title: "LLM Safeguards with Synthetic Data: Cerberus Part 1"
 permalink: /2025/06/16/cerberus-safeguards-for-llms-synthetic-data-generation-part-1/
-description: "Build robust safeguards for LLMs using synthetic data generation techniques. Part 1 of a series on protecting and improving large language model deployments"
+description: "Build an LLM safeguards dataset with synthetic prompts, semantic deduplication, G-Eval label checks, and human review. Cerberus, part 1."
 date: 2025-06-16 16:33:48 +0000
 tags: [llm-safety, synthetic-data]
 excerpt: "A practical look at building an LLM safety dataset: generating examples, removing duplicates, and figuring out which labels to trust."
 author: "Yudhiesh Ravindranath"
 series: "Cerberus"
 part: 1
-image: /images/art/cerberus.webp
+image:
+  path: /images/art/cerberus.webp
+  width: 480
+  height: 480
+  alt: "An indigo engraving of a gentle three-headed Cerberus guarding a flowering branch"
 artwork: /images/art/cerberus.webp
 artwork_alt: "An indigo engraving of a gentle three-headed Cerberus guarding a flowering branch"
 subtitle: "Synthetic data generation, from first prompts to reviewed labels."
-modified_date: 2026-10-25
+last_modified_at: 2026-10-25
 mathjax: true
 ---
 
@@ -55,7 +60,7 @@ mathjax: true
 
 </details>
 
-# Introduction
+## Introduction
 
 Getting an LLM to answer questions is the easy part. Deciding which questions it should answer takes a little more work.
 
@@ -67,9 +72,9 @@ The goal is to check a request before spending time and compute on the main mode
 
 > This post focuses on input checks. Output validation matters too, but it is a separate part of the system.
 
-# Safeguards
+## Safeguards
 
-## What Are LLM Safeguards?
+### What Are LLM Safeguards?
 
 A safeguard is a check around a model call. It can inspect the request, the response, or both. The check might be a rule, a small classifier, or another LLM; the right choice depends on what you need to catch and the latency you can afford.
 
@@ -82,9 +87,9 @@ A safeguard is a check around a model call. It can inspect the request, the resp
 
 **Output checks** inspect the generated response for issues such as policy violations or an unexpected format. Neither layer guarantees correctness; both need evaluation against the application's actual failure cases.
 
-## LLM Safeguards Requirements
+### LLM Safeguards Requirements
 
-### Functional
+#### Functional
 
 These are the core jobs your guardrails need to handle:
 
@@ -98,7 +103,7 @@ These are the core jobs your guardrails need to handle:
 
 - **Threat Detection** - Identify prompt injections, conversation hijacking, and policy violations in real-time.
 
-### Non-Functional
+#### Non-Functional
 
 - **Latency** - Guardrails add processing time. Users expect fast responses, so you need to run checks efficiently, often in parallel with your main LLM call.
 
@@ -110,7 +115,7 @@ These are the core jobs your guardrails need to handle:
 
 - **Maintainability** - Threats evolve constantly. Your system needs to be easily updated as new attack patterns emerge.
 
-## LLM Inference using Safeguards
+### LLM Inference using Safeguards
 
 <div align="center">
 <figure>
@@ -133,7 +138,7 @@ With LLM Safeguards you would be having a separate service to determine beforeha
 
 ![ChatGPT Safeguards]({{ site.baseurl }}/images/chatgpt_safeguards.png)
 
-## Building Safeguards
+### Building Safeguards
 
 <div align="center">
 <figure>
@@ -156,11 +161,11 @@ Before we can build and evaluate these safeguards, we need ground truth data—a
 
 To address this challenge, we'll leverage LLMs themselves to generate our training data. This process, known as [Synthetic Data Generation](https://aws.amazon.com/what-is/synthetic-data/), allows us to create large-scale, diverse datasets with accurate safety labels while maintaining control over the distribution and complexity of examples.
 
-# Synthetic Data Generation
+## Synthetic Data Generation
 
 For this experiment, I used an LLM to draft prompts and initial labels, then checked those examples before using them for training. Generation gives us a starting point; it does not make the labels ground truth. OpenAI's [synthetic data walkthrough](https://cookbook.openai.com/examples/sdg1) is another useful starting point.
 
-## The Challenge: Imbalanced Data
+### The Challenge: Imbalanced Data
 
 I chose a 90/10 safe-to-unsafe split for this experiment. That is a dataset design choice, not a universal estimate of production traffic. With an imbalanced dataset, there are a few things to watch:
 
@@ -168,7 +173,7 @@ I chose a 90/10 safe-to-unsafe split for this experiment. That is a dataset desi
 - **Poor Recall**: Models may miss many unsafe prompts, creating safety risks
 - **Limited Edge Cases**: Rare but critical safety violations are underrepresented
 
-## Synthetic Data Generation Flow
+### Synthetic Data Generation Flow
 
 The pipeline starts with separate safe and unsafe prompt templates. Examples move through generation, deduplication, label checks, and review before dataset assembly:
 
@@ -179,11 +184,11 @@ The pipeline starts with separate safe and unsafe prompt templates. Examples mov
 </figure>
 {% endraw %}
 
-### 1. Prompt Template Design
+#### 1. Prompt Template Design
 
 The foundation of the synthetic data generation process lies in carefully crafted prompt templates. Think of these as blueprints for generating diverse, realistic examples that cover the full spectrum of safety scenarios. Two distinct sets of templates were developed:
 
-#### Safe Context Templates
+##### Safe Context Templates
 The safe context templates ([v2_safe_contexts.txt](https://github.com/yudhiesh/cerberus/blob/master/data_generation/v2_safe_contexts.txt)) focus on legitimate use cases across various domains:
 
 - **Web Development & APIs**: Templates for API documentation, web service queries, and frontend development
@@ -192,7 +197,7 @@ The safe context templates ([v2_safe_contexts.txt](https://github.com/yudhiesh/c
 - **Databases**: Database design, query optimization, and data modeling
 - **Distributed Systems**: System architecture, scalability patterns, and distributed computing concepts
 
-#### Unsafe Context Templates
+##### Unsafe Context Templates
 The unsafe context templates ([v2_unsafe_contexts.txt](https://github.com/yudhiesh/cerberus/blob/master/data_generation/v2_unsafe_contexts.txt)) cover potential security threats and misuse cases:
 
 - **Network Exploitation**: Attempts to discover vulnerabilities or bypass security measures
@@ -215,16 +220,16 @@ While an unsafe template might generate:
 
 This careful template design ensures the synthetic dataset captures the nuanced differences between legitimate and malicious requests, providing a robust foundation for training effective safety classifiers.
 
-### 2. Controlled Generation
+#### 2. Controlled Generation
 
 The controlled generation phase transforms carefully designed templates into a diverse dataset of examples. Using the [generate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/generate.py) script, [Distilabel](https://distilabel.argilla.io/latest/) orchestrates the generation process with several key considerations:
 
-#### Volume and Distribution
+##### Volume and Distribution
 - Generated 1,000 examples in total across the prompt categories
 - Maintained a 90/10 split between safe and unsafe examples
 - This split was the starting distribution for this experiment; a deployment would need its own traffic analysis
 
-#### Generation Process
+##### Generation Process
 The generation process follows these steps:
 1. **Template Selection**: Randomly selects a template from either safe or unsafe context pools
 2. **Parameter Filling**: Populates template variables with appropriate values
@@ -274,7 +279,7 @@ distiset = pipeline.run()
 
 This controlled approach ensures the dataset maintains high quality while covering the full spectrum of possible scenarios. The actual implementation in [generate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/generate.py) includes additional features like structured output validation and custom quality metrics.
 
-### 3. Semantic Deduplication
+#### 3. Semantic Deduplication
 
 After generation, the challenge of removing redundant examples while preserving semantic diversity is addressed. The [deduplicate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/deduplicate.py) script leverages the [SemHash](https://github.com/MinishLab/semhash) library for efficient semantic deduplication:
 
@@ -284,7 +289,7 @@ SemHash provides a fast and scalable solution for semantic deduplication:
 - Supports both single-dataset and cross-dataset deduplication
 - Provides explainable results with detailed metrics
 
-#### Deduplication Process
+##### Deduplication Process
 The deduplication workflow is straightforward with SemHash:
 
 ```python
@@ -313,7 +318,7 @@ The deduplication process involves:
 3. **Representative Selection**: Chooses the most representative example from each cluster
 4. **Threshold Filtering**: Removes examples that exceed similarity thresholds
 
-#### Deduplication Metrics
+##### Deduplication Metrics
 The implementation achieved the following [metrics](https://github.com/yudhiesh/cerberus/blob/master/data_generation/data/v2_synthetic_1000_deduplication_metrics.json) on the synthetic dataset:
 
 ```json
@@ -334,7 +339,7 @@ These metrics show that:
 - The dataset was reduced from 1,000 to 708 examples
 - 292 examples were removed as duplicates
 
-### 4. G-Eval Quality Validation
+#### 4. G-Eval Quality Validation
 
 Quality validation is crucial for ensuring the reliability of the synthetic dataset. The [evaluate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/evaluate.py) script uses the [DeepEval](https://deepeval.com/) framework, specifically implementing the G-Eval algorithm for robust validation. For a comprehensive guide on G-Eval, you can read more [here](https://www.confident-ai.com/blog/g-eval-the-definitive-guide).
 
@@ -376,7 +381,7 @@ test_cases = [
 dataset = EvaluationDataset(test_cases=test_cases)
 evaluation_results = dataset.evaluate([g_eval])
 ```
-#### Validation Process
+##### Validation Process
 
 The G-Eval algorithm follows these steps:
 1. **Initial Assessment**: Second LLM evaluates each generated example
@@ -384,7 +389,7 @@ The G-Eval algorithm follows these steps:
 3. **Confidence Scoring**: Assigns confidence scores to each evaluation
 4. **Disagreement Detection**: Identifies examples needing human review
 
-#### Evaluation Workflow
+##### Evaluation Workflow
 The G-Eval algorithm, implemented through DeepEval, provides:
 - **Chain-of-Thought Evaluation**: Uses step-by-step reasoning for nuanced decisions
 - **Score Normalization**: Converts LLM outputs to standardized 1-5 scores
@@ -394,7 +399,7 @@ The G-Eval algorithm, implemented through DeepEval, provides:
 
 This validation step ensures the quality and reliability of our dataset by leveraging the power of LLMs to evaluate their own outputs through the G-Eval algorithm.
 
-#### Model Disagreement and the Role of Human-in-the-Loop
+##### Model Disagreement and the Role of Human-in-the-Loop
 
 When comparing the predictions of the model used to generate the synthetic data with those of the evaluation model (using G-Eval), we observe that there are instances where the two models disagree. This is clearly illustrated in the confusion matrix below, where some examples labeled as 'safe' by the generation model are flagged as 'unsafe' by the G-Eval evaluation, resulting in false negatives. 
 
@@ -411,11 +416,11 @@ These disagreements are critical to address, as they may indicate edge cases or 
 
 By systematically addressing these disagreements, we minimize the risk of mislabeling and enhance the robustness of our safety classifier training data.
 
-### 5. Human-in-the-Loop Annotation
+#### 5. Human-in-the-Loop Annotation
 
 For cases where automated validation shows disagreement, human expertise is employed through the [annotate.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/annotate.py) script:
 
-#### Annotation Workflow
+##### Annotation Workflow
 - **Platform Integration**: Uses Argilla for efficient annotation management
 - **Review Process**: Human annotators review flagged examples
 - **Quality Control**: Multiple annotators for controversial cases
@@ -430,7 +435,7 @@ To facilitate this process, [Argilla](https://argilla.io/) provides an intuitive
   </figure>
 </div>
 
-#### Annotation Process
+##### Annotation Process
 The human annotation phase involves:
 1. **Task Preparation**: Organizing examples for efficient review
 2. **Review Interface**: Providing annotators with necessary context
@@ -439,17 +444,17 @@ The human annotation phase involves:
 
 This human-in-the-loop approach ensures high-quality labels for edge cases and further enhances the reliability of the final dataset.
 
-### 6. Dataset Finalization
+#### 6. Dataset Finalization
 
 The final phase, implemented in [dataset_preprocess.py](https://github.com/yudhiesh/cerberus/blob/master/data_generation/src/data_generation/dataset_preprocess.py), combines all components into a production-ready dataset:
 
-#### Finalization Steps
+##### Finalization Steps
 1. **Label Consolidation**: Merges original and human-annotated labels
 2. **Format Standardization**: Converts to Hugging Face Datasets format
 3. **Metadata Addition**: Includes generation and validation metadata
 4. **Quality Metrics**: Calculates and includes dataset statistics
 
-#### Dataset Structure
+##### Dataset Structure
 The final dataset is organized into:
 - **Training Set**: Primary dataset for model training
 - **Test Set**: For final evaluation
@@ -468,7 +473,7 @@ The dataset can be found [here](https://huggingface.co/datasets/yudhiesh/cerberu
 ></iframe>
 </div>
 
-## Exploratory Data Analysis on Synthetic Data
+### Exploratory Data Analysis on Synthetic Data
 
 To better understand the characteristics of the synthetic dataset, a thorough analysis was conducted using [BERTopic](https://maartengr.github.io/BERTopic/), a powerful topic modeling tool. An interactive analysis notebook was developed using [Marimo](https://marimo.io) (available in the [EDA directory](https://github.com/yudhiesh/cerberus/tree/master/eda)) to explore the patterns and distributions within the 566 examples.
 
@@ -506,7 +511,7 @@ The interactive visualization below shows the topic distribution and similarity 
   <iframe src="{{ '/assets/eda.html' | relative_url }}" title="Interactive synthetic data analysis" loading="lazy" width="100%" height="720" frameborder="0"></iframe>
 </div>
 
-# Final Thoughts
+## Final Thoughts
 
 Getting examples from an LLM was the straightforward part. Deciding which examples to keep took more care: 1,000 generated prompts became 708 after deduplication, and disagreements between the generator and evaluator still needed a closer look.
 
@@ -514,11 +519,11 @@ The generation and evaluation runs cost around $20–25. Distilabel's caching he
 
 Before scaling this further, I would work on better coverage of rare cases and clearer checks for label quality. I would also compare the downstream classifier on held-out examples. A tidy dataset is useful; whether it helps the classifier is the next question.
 
-# Coming Up Next
+## Coming Up Next
 
 In Part 2 of this series, the synthetic dataset will be put to the test by comparing various algorithms for prompt safety classification. The evaluation will explore different approaches—from lightweight models to sophisticated neural architectures—analyzing their performance, speed, and resource requirements to find the optimal balance for real-world deployment. Stay tuned!
 
-# References
+## References
 - [Guardrails AI](https://www.guardrailsai.com/docs)
 - [How to use Guardrails from OpenAI](https://cookbook.openai.com/examples/how_to_use_guardrails)
 - [What is Synthetic Data?](https://aws.amazon.com/what-is/synthetic-data/)

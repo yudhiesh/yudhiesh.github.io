@@ -1,24 +1,26 @@
 ---
 layout: base
 ---
-<article class="post h-entry" itemscope itemtype="https://schema.org/BlogPosting">
+<article class="post h-entry">
   {% include post-art.html %}
   <header class="post-header">
     {% if page.series %}<p class="eyebrow">{{ page.series | escape }}{% if page.part %} · Part {{ page.part }}{% endif %}</p>{% endif %}
-    <h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
+    <h1 class="post-title p-name">{{ page.title | escape }}</h1>
     {% if page.subtitle %}<p class="post-subtitle">{{ page.subtitle | escape }}</p>{% endif %}
     {% assign words = content | strip_html | number_of_words %}
     {% assign minutes = words | plus: 219 | divided_by: 220 %}
     <p class="post-meta">
-      <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">{{ page.date | date: '%B %-d, %Y' }}</time>
+      <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: '%B %-d, %Y' }}</time>
       <span aria-hidden="true"> · </span>{{ minutes }} min read
-      {% if page.author %}<span aria-hidden="true"> · </span><span itemprop="author" itemscope itemtype="https://schema.org/Person"><span class="p-author h-card" itemprop="name">{{ page.author | join: ', ' | escape }}</span></span>{% endif %}
-      {% if page.modified_date %}<br>Updated <time class="dt-modified" datetime="{{ page.modified_date | date_to_xmlschema }}" itemprop="dateModified">{{ page.modified_date | date: '%B %-d, %Y' }}</time>{% endif %}
+      {% if page.author %}<span aria-hidden="true"> · </span><span><a class="p-author h-card" href="{{ '/about/' | relative_url }}"><span>{{ page.author | join: ', ' | escape }}</span></a></span>{% endif %}
+      {% assign modified = page.last_modified_at | default: page.modified_date %}
+      {% if modified %}<br>Updated <time class="dt-modified" datetime="{{ modified | date_to_xmlschema }}">{{ modified | date: '%B %-d, %Y' }}</time>{% endif %}
     </p>
   </header>
-  <div class="post-content e-content" itemprop="articleBody">{{ content }}</div>
+  <div class="post-content e-content">{{ content }}</div>
   <footer class="post-end">
     {% if page.tags.size > 0 %}<nav class="post-tags" aria-label="Post topics">{% for tag in page.tags %}<a href="{{ '/tags.html' | relative_url }}#{{ tag | slugify }}" class="post-tag">{% assign topic = site.data.topics | where: "slug", tag | first %}{{ topic.name | default: tag | escape }}</a>{% endfor %}</nav>{% endif %}
+    {% include related-posts.html %}
     <a class="back-link" href="{{ '/' | relative_url }}">← All writing</a>
   </footer>
   {% if site.disqus.shortname %}{% include disqus_comments.html %}{% endif %}

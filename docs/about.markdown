@@ -1,6 +1,7 @@
 ---
 layout: page
-title: About
+title: About Yudhiesh Ravindranath
+description: "Meet Yudhiesh Ravindranath, Lead Data Scientist at OneCredit in Kuala Lumpur, writing about ML systems, search, and LLM safety."
 permalink: /about/
 ---
 

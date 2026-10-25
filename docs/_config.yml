@@ -1,8 +1,16 @@
 title: Bits & Backprops
-tagline: Where git commits meet gradients
+tagline: Practical notes on ML engineering
+lang: en
+locale: en_MY
+timezone: Asia/Kuala_Lumpur
 author:
   name: Yudhiesh Ravindranath
   email: yudhiesh1997@gmail.com
+  url: https://yudhiesh.github.io/about/
+  twitter: yudhiesh1997
+  job_title: Lead Data Scientist
+  employer: OneCredit
+  employer_url: https://portal.onecredit.my/
 description: >- 
   Notes on machine learning, the systems around it,
   and what happens when you put them to work.
@@ -21,7 +29,21 @@ twitter:
   username: yudhiesh1997
   card: summary
 
+social_image:
+  path: /images/art/ginkgo.webp
+  width: 480
+  height: 480
+  alt: An indigo engraving of a ginkgo branch, the Bits & Backprops homepage mark
+
 defaults:
+  - scope:
+      path: "assets"
+    values:
+      sitemap: false
+  - scope:
+      path: "src"
+    values:
+      sitemap: false
   - scope:
       path: ""
       type: "posts"
@@ -50,19 +72,8 @@ remote_theme: jekyll/minima@0b7ca6bbdb782a646f8e7b78b1a29fd5032ad4d3
 plugins:
   - jekyll-remote-theme
   - jekyll-feed
-  - jekyll-seo-tag
   - jekyll-sitemap
 
-
-sitemap:
-  filename: "/sitemap.xml"
-  exclude:
-    - "/404.html"
-    - "/feed.xml"
-  include_posts:
-    - "/index.html"
-  change_frequency_name: "change_frequency"
-  priority_name: "priority"
 
 header_pages:
   - tags.html
@@ -73,3 +84,4 @@ webmaster_verifications:
 
 exclude:
   - EDITORIAL.md
+  - SEO.md
