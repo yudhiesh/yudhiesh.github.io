@@ -13,7 +13,8 @@ mathjax: true
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML">
 </script>
 
-# Table of Contents
+<details class="post-toc" markdown="1">
+<summary>In this post</summary>
 
 * [Overview](#overview)
 * [Filtering Strategies in ANN Search](#filtering-strategies-in-ann-search)
@@ -26,6 +27,8 @@ mathjax: true
   * [Limitations of Embedding-Level Filter Fusion](#limitations-of-embedding-level-filter-fusion)
 * [References](#references)
 
+
+</details>
 
 # Overview
 ![Achilles Heel](https://howitworks.wpengine.com/wp-content/uploads/2011/11/Achilles_PD.jpg)

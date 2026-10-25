@@ -28,8 +28,11 @@ defaults:
     values:
       layout: "post"
       author: "Yudhiesh Ravindranath"
+      artwork: /images/art/ginkgo.webp
+      artwork_alt: "An indigo engraving of a ginkgo branch"
 
 minima:
+  skin: classic
   social_links:
     - title: GitHub
       icon: github
@@ -51,9 +54,7 @@ plugins:
   - jekyll-feed
   - jekyll-seo-tag
   - jekyll-sitemap
-  
-minima:
-  skin: auto
+
 
 sitemap:
   filename: "/sitemap.xml"
@@ -71,3 +72,6 @@ header_pages:
 
 webmaster_verifications:
   google: CaUtTqV3jTzZIg8C6rLxYWg10BjHpLaUImu5bnRKLt4
+
+exclude:
+  - EDITORIAL.md
