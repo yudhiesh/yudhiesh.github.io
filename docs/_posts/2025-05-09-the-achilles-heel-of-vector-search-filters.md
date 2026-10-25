@@ -4,9 +4,11 @@ title: "The Achilles Heel of Vector Search: Filters"
 description: "Exploring performance challenges when combining vector search with filtering in production systems"
 date: 2025-05-09
 tags: [search]
-image: https://howitworks.wpengine.com/wp-content/uploads/2011/11/Achilles_PD.jpg
+image: /images/art/vector-search.webp
 excerpt: "Why filters can dramatically impact vector search performance and what you can do about it"
 modified_date: 2026-10-25
+artwork: /images/art/vector-search.webp
+artwork_alt: "An indigo engraving of an antique sieve holding a few smooth pebbles"
 mathjax: true
 ---
 

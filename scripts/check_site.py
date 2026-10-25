@@ -1,5 +1,6 @@
 """Check generated navigation and feed compatibility, without external requests."""
 import sys
+import hashlib
 from datetime import datetime
 from html.parser import HTMLParser
 from pathlib import Path
@@ -11,10 +12,21 @@ class Page(HTMLParser):
     def __init__(self, source):
         super().__init__(convert_charrefs=True)
         self.elements = []
+        self.artwork = []
+        self.in_chapter_art = False
         self.feed(source)
 
     def handle_starttag(self, tag, attrs):
-        self.elements.append((tag, dict(attrs)))
+        attrs = dict(attrs)
+        self.elements.append((tag, attrs))
+        if tag == 'figure' and 'chapter-art' in attrs.get('class', '').split():
+            self.in_chapter_art = True
+        if tag == 'img' and self.in_chapter_art:
+            self.artwork.append(attrs)
+
+    def handle_endtag(self, tag):
+        if tag == 'figure':
+            self.in_chapter_art = False
 
 
 def require(condition, message):
@@ -24,6 +36,23 @@ def require(condition, message):
 
 def main():
     root = Path(sys.argv[1] if len(sys.argv) > 1 else '_site')
+    # Check every post, including posts older than the feed's entry limit.
+    artwork_hashes = {}
+    for article in root.rglob('*.html'):
+        page = Page(article.read_text())
+        if not any(t == 'article' and 'h-entry' in a.get('class', '').split() for t, a in page.elements):
+            continue
+        require(len(page.artwork) == 1, f'Post needs one unique opener: {article}')
+        artwork = page.artwork[0]
+        src = artwork.get('src', '')
+        require(src.startswith('/images/art/') and not src.endswith('/ginkgo.webp'), f'Post needs its own local artwork: {article}')
+        require(len(artwork.get('alt', '').strip()) > 15, f'Artwork needs descriptive alt text: {article}')
+        asset = root / unquote(src).lstrip('/')
+        require(asset.is_file(), f'Artwork file missing: {src}')
+        digest = hashlib.sha256(asset.read_bytes()).hexdigest()
+        require(digest not in artwork_hashes, f'Posts share opener artwork: {artwork_hashes.get(digest)} and {article}')
+        artwork_hashes[digest] = article
+    require(artwork_hashes, 'No post artwork was checked')
     ns = {'a': 'http://www.w3.org/2005/Atom'}
     feed = ET.parse(root / 'feed.xml').getroot()
     require(feed.findtext('a:title', namespaces=ns) == 'Bits & Backprops', 'Feed title was escaped incorrectly')
@@ -47,7 +76,7 @@ def main():
             if tag == 'img' and src.startswith('/'):
                 require((root / unquote(src).lstrip('/')).is_file(), f'Missing image: {src}')
         portable = Page(entry.findtext('a:content', namespaces=ns))
-        require(any(t == 'img' and '/images/art/' in a.get('src', '') for t, a in portable.elements), f'Feed artwork missing: {url}')
+        require(any(t == 'img' and urlparse(a.get('src', '')).path == page.artwork[0]['src'] for t, a in portable.elements), f'Feed artwork differs from article: {url}')
         require(not any(t in {'script', 'iframe', 'video'} for t, _ in portable.elements), f'Interactive-only markup in feed: {url}')
         for tag, attrs in portable.elements:
             for key in ('src', 'href'):
@@ -73,8 +102,8 @@ def main():
     for slug in ('llm-safety', 'synthetic-data', 'search', 'ml-engineering', 'vector-search', 'machine-learning', 'cerberus'):
         require(slug in topic_ids, f'Topic or legacy alias missing: {slug}')
     about = (root / 'about/index.html').read_text()
-    require('Lead DS' in about and 'https://portal.onecredit.my/' in about, 'About page has stale role/link')
-    print(f'PASS: {len(entries)} feed entries, stable IDs/URLs, artwork, static fallbacks, article anchors, topics, and current role')
+    require('Lead Data Scientist' in about and 'https://portal.onecredit.my/' in about, 'About page has stale role/link')
+    print(f'PASS: {len(entries)} feed entries, stable IDs/URLs, artwork, static fallbacks, article anchors, topics, unique post art, and current role')
 
 
 if __name__ == '__main__':

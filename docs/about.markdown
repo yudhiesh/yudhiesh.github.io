@@ -6,7 +6,7 @@ permalink: /about/
 
 ## Hi, I'm Yudhiesh.
 
-I'm Lead DS at [OneCredit](https://portal.onecredit.my/), based in Kuala Lumpur. I work on machine learning and the engineering needed to make it useful in practice.
+I'm Lead Data Scientist at [OneCredit](https://portal.onecredit.my/), based in Kuala Lumpur. I work on machine learning and the engineering needed to make it useful in practice.
 
 Before OneCredit, I worked on ML infrastructure for quant trading at Trontal Group and built ML platforms at MoneyLion, helping data scientists get their models into production.
 

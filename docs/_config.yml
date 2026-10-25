@@ -28,8 +28,6 @@ defaults:
     values:
       layout: "post"
       author: "Yudhiesh Ravindranath"
-      artwork: /images/art/ginkgo.webp
-      artwork_alt: "An indigo engraving of a ginkgo branch"
 
 minima:
   skin: classic

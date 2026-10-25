@@ -6,9 +6,9 @@
    links, generous space, and a roughly 700px text column. Use system Georgia for
    literary type without a font download. Keep metadata and navigation in a small
    system sans serif. Use solid backgrounds and thin rules rather than cards.
-2. Open every post with a small engraved illustration. Cerberus gets its own
-   guardian; other posts inherit a ginkgo sprig until they have a subject of their
-   own. This avoids blocking publication on commissioning new art.
+2. Open every post with its own generated engraving, with a subject tied to the
+   article. Keep the indigo ink and technique consistent, but never reuse an
+   opener between posts. The ginkgo sprig is the homepage mark only.
 3. Keep a simple chronological homepage. Titles and short, useful excerpts should
    do the work. Topics and RSS remain easy to find. Keep diagrams, code, tables,
    and embeds readable on phones.
@@ -39,10 +39,12 @@ Reusable image prompt:
 > subject on a square transparent canvas, generous negative space, whole subject
 > visible, legible at 160 pixels wide. No frame, text, watermark, or background scene.
 
-Current artwork was created with the built-in image generator. Cerberus's subject
-brief was a gentle three-headed dog guarding a small flowering branch; the shared
-opener's subject brief was a slender ginkgo sprig with five fan-shaped leaves.
-Assets live in `docs/images/art/`. Add a credit in `artwork_caption` if future art
+Current artwork was created with the built-in image generator: a gentle
+three-headed dog guarding a flowering branch for Cerberus, an antique sieve
+holding pebbles for vector filtering, and a small sailing boat with a signal
+pennant for shipping with feature flags. The homepage uses a ginkgo sprig.
+Assets live in `docs/images/art/`. The full prompts for the new search and
+feature-flags engravings are recorded in `_data/artwork.json`. Add a credit in `artwork_caption` if future art
 requires attribution. Do not hotlink someone else's illustration.
 
 ## Voice
@@ -64,6 +66,9 @@ are revisited; they do not need a wholesale rewrite to use the new presentation.
 ## Before publishing
 
 - Replace the template's title, date, excerpt, description, and tags.
+- Generate a unique opener for the article and set `artwork` and `artwork_alt`.
+  The build checks that each post has descriptive alt text and its own image
+  asset/content, including posts outside the feed window.
 - Use `artwork_alt` to describe new art. Keep `image` separate from `artwork` when
   the sharing image should differ. Never put essential information only in art.
 - Preview the homepage, article, and its topic links. Check a narrow phone view,
