@@ -5,7 +5,7 @@ subtitle: "One quiet sentence that sets up the question."
 date: 2026-10-25 10:00:00 +0800
 excerpt: "The question, what you tried, and why the result is useful. Keep this to one or two sentences."
 description: "A short, specific description for search and sharing."
-tags: [machine-learning]
+tags: [ml-engineering]
 # Ginkgo art is inherited automatically. Uncomment to supply your own:
 # artwork: /images/art/your-subject.webp
 # artwork_alt: "Describe the subject, not just 'chapter opener'."

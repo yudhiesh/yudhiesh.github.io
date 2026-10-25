@@ -5,3 +5,4 @@ docs/.jekyll-metadata
 docs/.sass-cache/
 docs/.bundle/
 vendor/
+__pycache__/

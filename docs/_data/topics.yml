@@ -1,0 +1,12 @@
+- slug: llm-safety
+  name: LLM Safety
+  aliases: [large-language-models, ai-safety, cerberus, natural-language-processing]
+- slug: synthetic-data
+  name: Synthetic Data
+  aliases: [data-generation]
+- slug: search
+  name: Search
+  aliases: [vector-search, semantic-search, filters, performance-optimization]
+- slug: ml-engineering
+  name: ML Engineering
+  aliases: [feature-flags, mlops, deployment, a-b-testing, production-ml, machine-learning]

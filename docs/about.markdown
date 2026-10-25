@@ -4,52 +4,26 @@ title: About
 permalink: /about/
 ---
 
-## Hey, I'm Yudhiesh 👋
+## Hi, I'm Yudhiesh.
 
-I'm an ML engineer who believes that machine learning should actually work in production, not just in Jupyter notebooks.
+I'm Lead DS at [OneCredit](https://portal.onecredit.my/), based in Kuala Lumpur. I work on machine learning and the engineering needed to make it useful in practice.
 
-Currently, I'm architecting ML infrastructure for quant trading systems at [Trontal Group](https://trontalgroup.com/), where milliseconds matter and reliability isn't optional. Before this, I built ML platforms at [MoneyLion](https://www.moneylion.com/)'s Machine Learning Labs, helping dozens of data scientists ship models that serve millions of users.
+Before OneCredit, I worked on ML infrastructure for quant trading at Trontal Group and built ML platforms at MoneyLion, helping data scientists get their models into production.
 
-## What I Do
+This blog is my engineering notebook. I write about questions I run into, experiments I try, and the trade-offs that show up once a system has real users. Lately, that's meant vector search, LLM safeguards, and the data behind them.
 
-🚀 **Production ML at Scale**  
-From serving LLMs handling thousands of requests per second to building MLOps platforms that don't break at 3 AM. I specialize in the practical work of making ML systems reliable, scalable, and actually useful.
+## A little teaching, too
 
-📝 **Writing About Real ML**  
-This blog is my engineering notebook made public. No "10x AI productivity" hype, no "AGI is coming" speculation. Just tested lessons from the trenches of production ML. Expect deep dives into:
-- Vector search optimization (and why filters are its Achilles heel)
-- Feature flag strategies for ML deployments
-- Synthetic data generation for LLM safeguards
-- The practical reality of ML infrastructure
+I've taught more than 1,500 engineers through courses at Uplimit:
 
-🎓 **Teaching What Works**  
-I've taught 1500+ engineers worldwide through hands-on courses that focus on what actually matters in production:
+- [LLMs in Production](https://uplimit.com/course/llms-in-production)
+- [MLOps: From Models to Production](https://uplimit.com/course/mlops)
+- [DevOps Crash Course](https://uplimit.com/course/devops-crash-course)
 
-- [**LLMs in Production**](https://uplimit.com/course/llms-in-production) - Beyond prompt engineering to real deployment
-- [**MLOps: From Models to Production**](https://uplimit.com/course/mlops) - The full lifecycle, including the challenges
-- [**DevOps Crash Course**](https://uplimit.com/course/devops-crash-course) - Because ML engineers need ops skills
+Teaching is a useful test of whether I understand something well enough to explain it. Writing here serves much the same purpose.
 
-## My Philosophy
+## Say hello
 
-**Good ML engineering is invisible.** Users don't care about your model architecture. They care that predictions are fast, accurate, and available. That's what I optimize for.
+You can find me on [GitHub](https://github.com/yudhiesh) and [LinkedIn](https://www.linkedin.com/in/yudhiesh-ravindranath/), or reach me by [email](mailto:yudhiesh1997@gmail.com).
 
-**Failures teach more than successes.** Every post includes what went wrong, not just what worked. Because that's how we all actually learn.
-
-**Code > Slides.** Everything I write includes working examples. Theory is nice, but `git clone` and `docker run` are better.
-
-## Let's Connect
-
-I'm always interested in discussing production ML challenges, especially around:
-- Scaling vector databases
-- LLM deployment strategies  
-- ML platform architecture
-- Making data scientists more productive
-
-Find me on:
-- 💻 [GitHub](https://github.com/yudhiesh) - Where the code lives
-- 💼 [LinkedIn](https://linkedin.com/in/yudhiesh-ravindranath) - For professional connections
-- 📧 [Email](mailto:yudhiesh1997@gmail.com) - For interesting opportunities
-
----
-
-Currently in Kuala Lumpur, Malaysia 🇲🇾 
+If you'd like the next post when it's published, [follow the RSS feed]({{ '/feed.xml' | relative_url }}).

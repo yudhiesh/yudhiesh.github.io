@@ -1,11 +1,13 @@
 ---
 layout: post
-title: "Feature Flag Driven Development in Machine Learning"
+title: "Shipping ML with Feature Flags"
+permalink: /2024/12/27/feature-flag-driven-development-in-ml/
 description: "Learn how to implement feature flags in ML systems for safer deployments, A/B testing, and gradual rollouts of machine learning models"
 date: 2024-12-27 12:00:00 +0000
-tags: [feature-flags, mlops, deployment, a-b-testing, production-ml, machine-learning]
-excerpt: "Discover how feature flags can revolutionize your ML deployment strategy, enabling safer rollouts, easier rollbacks, and controlled experimentation in production environments"
+tags: [search, ml-engineering]
+excerpt: "How feature flags helped me change a search system gradually, test ideas, and keep a way back."
 author: "Yudhiesh Ravindranath"
+modified_date: 2026-10-25
 mathjax: true
 ---
 <details class="post-toc" markdown="1">
@@ -16,7 +18,7 @@ mathjax: true
 - [How Semantic Search Works?](#how-semantic-search-works)
   - [Word Embeddings](#word-embeddings)
   - [Vector Databases](#vector-databases)
-- [Semantic Search Implementation](#how-semantic-search-works-1)
+- [Semantic Search Implementation](#semantic-search-implementation)
   - [Offline](#offline)
   - [Online](#online)
   - [Big Picture of Semantic Search](#big-picture-of-semantic-search)
@@ -139,6 +141,8 @@ There are a ton of vector database options out there, largely split into purpose
 ![](https://media.licdn.com/dms/image/D5612AQFPNZxykG6Enw/article-cover_image-shrink_600_2000/0/1688152025187?e=2147483647&v=beta&t=_iGesp-lS22luisdy9BqvIXaYlTx8EfIQNgL4taflQY)
 
 Picking a vector database to use warrants its own blog post due to the sheer number of options and considerations that need to take place.
+
+## Semantic Search Implementation
 
 Going back to Eugene's terrific blog post we can see how a Semantic Search fits into the big picture by looking at the Retrieval section covering the offline and online side of search. 
 ![Image]({{ site.baseurl }}/images/Screenshot 2024-12-22 at 18.33.38.png)
