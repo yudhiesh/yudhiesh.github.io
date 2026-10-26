@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="{{ page.lang | default: site.lang | default: 'en' }}">
   {%- include head.html -%}
-  <body>
+  <body{% if page.layout == 'home' %} class="home-page"{% endif %}>
     <a class="skip-link" href="#main-content">Skip to content</a>
     {%- include header.html -%}
     <main id="main-content" class="page-content" aria-label="Content">
-      <div class="wrapper">{{ content }}</div>
+      <div class="wrapper{% if page.layout == 'home' or page.layout == 'post' %} wide-wrapper{% endif %}">{{ content }}</div>
     </main>
     {%- include footer.html -%}
   </body>

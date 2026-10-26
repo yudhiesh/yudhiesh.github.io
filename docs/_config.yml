@@ -30,10 +30,10 @@ twitter:
   card: summary
 
 social_image:
-  path: /images/art/ginkgo.webp
-  width: 480
-  height: 480
-  alt: An indigo engraving of a ginkgo branch, the Bits & Backprops homepage mark
+  path: /images/art/retro-cover.webp
+  width: 1536
+  height: 1024
+  alt: A traveler faces a luminous branching tree beneath two moons on an alien landscape
 
 defaults:
   - scope:

@@ -51,4 +51,5 @@ http
 https
 localhost
 permalink
+WebP
 pre

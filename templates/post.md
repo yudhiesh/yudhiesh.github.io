@@ -8,14 +8,14 @@ date: 2026-10-25 10:00:00 +0800
 excerpt: "The question, what you tried, and why the result is useful. Keep this to one or two sentences."
 description: "A short, specific description for search and sharing."
 tags: [ml-engineering]
-# Required: generate a unique illustration for this article before publishing.
+# Required: use unique landscape artwork for this article before publishing.
 artwork: /images/art/your-subject.webp
 artwork_alt: "Describe the subject of this article's illustration."
 # artwork_caption: "Optional credit or context."
 image:
   path: /images/art/your-subject.webp
-  width: 480
-  height: 480
+  width: 1536 # Replace with the artwork's actual width.
+  height: 1024 # Replace with the artwork's actual height.
   alt: "Describe the subject of this article's illustration."
 # series: "Optional series name"
 # part: 1
