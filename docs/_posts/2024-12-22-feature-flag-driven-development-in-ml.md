@@ -10,12 +10,12 @@ excerpt: "How feature flags helped me change a search system gradually, test ide
 author: "Yudhiesh Ravindranath"
 last_modified_at: 2026-10-25
 image:
-  path: /images/art/feature-flags.webp
-  width: 480
-  height: 480
-  alt: "An indigo engraving of a small sailing boat with a signal pennant"
-artwork: /images/art/feature-flags.webp
-artwork_alt: "An indigo engraving of a small sailing boat with a signal pennant"
+  path: /images/art/retro-feature-flags.webp
+  width: 1536
+  height: 1024
+  alt: "A rocket launches through golden clouds above an alien plain while a cloaked observer looks on"
+artwork: /images/art/retro-feature-flags.webp
+artwork_alt: "A rocket launches through golden clouds above an alien plain while a cloaked observer looks on"
 mathjax: true
 ---
 <details class="post-toc" markdown="1">

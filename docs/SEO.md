@@ -20,7 +20,7 @@ unchanged. The existing Google verification token remains in the shared head.
 | Article schema and sitemap still reported original publication dates despite visible October 2026 updates | Standardize `last_modified_at` across visible dates, JSON-LD, social metadata, feed, and sitemap. Preserve original publication timestamps. |
 | WebSite schema used the author's name for the site's name | Use a linked schema graph with separate WebSite, Person, WebPage/AboutPage, and BlogPosting entities. Keep plain text correctly JSON-escaped. |
 | Author schema lacked a profile URL; Twitter creator was `@Yudhiesh Ravindranath` | Link the visible byline and article author to About; use the actual configured handle. About connects the author to their stated OneCredit role. |
-| Sharing images lacked alt/dimension metadata; non-post pages had none | Share each post's own generated art with dimensions and alt text; use the homepage mark only for non-post pages. Supply Twitter descriptions as well as Open Graph metadata. |
+| Sharing images lacked alt/dimension metadata; non-post pages had none | Share each post's own art with dimensions and alt text; use the site cover for non-post pages. Supply Twitter descriptions as well as Open Graph metadata. |
 | Sitemap advertised the raw notebook and 4.5MB chart export | Exclude `assets/` and `src/` exports from sitemap generation. Add `noindex, follow` to those exported HTML files during build preparation; retain direct access and embeds. |
 | Article bodies used multiple H1 headings | Keep one H1 supplied by the layout and start article sections at H2. Preserve heading text and link fragments. |
 | Article endings offered little contextual discovery | Add automatic links to up to three posts sharing topics, with a small other-writing fallback. |
@@ -37,16 +37,14 @@ duplicate or conflicting tags/structured data.
 
 Descriptions fall back from page `description` to `excerpt` to site description.
 A `seo_title` is optional; otherwise the visible title is used. Sharing images
-fall back from `image` to article `artwork` to the site mark. The article template
+fall back from `image` to article `artwork` to the site cover. The article template
 includes explicit image metadata, and output checks verify actual asset sizes.
 This is a single-author blog: the shared Person and byline use `site.author`.
 Update that author data if the blog gains guest authors.
 
-Keep square art as a square summary card. The current 480×480 illustrations meet
-Google's documented minimum image area for Article markup, but do not meet its
-1200px width recommendation for large Discover previews. Dedicated 1200px sharing
-cards are an optional later design task; no enlarged artwork or Discover eligibility
-is claimed here.
+The current sharing images are 1536×1024 landscape artwork. Keep the dimensions
+in front matter aligned with the actual exported assets; the site check verifies
+this for every indexable page.
 
 `prepare_site.py` changes only generated output, keeping the large exported
 notebook/chart files intact in Git. It marks utility HTML noindex and improves
@@ -61,7 +59,7 @@ the output preparation step.
    shorter display title needs clarification; keep their meanings aligned.
 2. Write a specific, unique description in one or two useful sentences. A character
    count is not a ranking target; Google can choose a different snippet.
-3. Include the unique generated artwork, descriptive alt text, and actual image
+3. Include unique artwork, descriptive alt text, and actual image
    dimensions from the template. For external body images, supply accurate width
    and height yourself; build preparation does not fetch third-party assets.
 4. Start body headings at H2. Link to relevant existing work when it helps the reader.
