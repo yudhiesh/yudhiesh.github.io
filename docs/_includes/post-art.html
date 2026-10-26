@@ -1,7 +1,7 @@
 {% assign artwork = page.artwork %}
 {% if artwork %}
 <figure class="chapter-art">
-  <img src="{{ artwork | relative_url }}" alt="{{ page.artwork_alt | escape }}" width="1536" height="1024" fetchpriority="high" decoding="async">
+  <img src="{{ artwork | relative_url }}" alt="{{ page.artwork_alt | escape }}" width="480" height="480" fetchpriority="high" decoding="async">
   {% if page.artwork_caption %}<figcaption>{{ page.artwork_caption | escape }}</figcaption>{% endif %}
 </figure>
 {% endif %}

@@ -11,12 +11,12 @@ author: "Yudhiesh Ravindranath"
 series: "Cerberus"
 part: 1
 image:
-  path: /images/art/retro-cerberus.webp
-  width: 1536
-  height: 1024
-  alt: "A robed guardian in crimson ruins watches spacecraft cross a desert beneath a teal moon"
-artwork: /images/art/retro-cerberus.webp
-artwork_alt: "A robed guardian in crimson ruins watches spacecraft cross a desert beneath a teal moon"
+  path: /images/art/cerberus.webp
+  width: 480
+  height: 480
+  alt: "An indigo engraving of a gentle three-headed Cerberus guarding a flowering branch"
+artwork: /images/art/cerberus.webp
+artwork_alt: "An indigo engraving of a gentle three-headed Cerberus guarding a flowering branch"
 subtitle: "Synthetic data generation, from first prompts to reviewed labels."
 last_modified_at: 2026-10-25
 mathjax: true

@@ -5,14 +5,14 @@ description: "Why metadata filters slow vector search: HNSW and IVF strategies, 
 date: 2025-05-09 00:00:00 +0000
 tags: [search]
 image:
-  path: /images/art/retro-vector-search.webp
-  width: 1536
-  height: 1024
-  alt: "An enormous eye hangs over winding green dunes as a traveler follows a path through the landscape"
+  path: /images/art/vector-search.webp
+  width: 480
+  height: 480
+  alt: "An indigo engraving of an antique sieve holding a few smooth pebbles"
 excerpt: "Why filters can dramatically impact vector search performance and what you can do about it"
 last_modified_at: 2026-10-25
-artwork: /images/art/retro-vector-search.webp
-artwork_alt: "An enormous eye hangs over winding green dunes as a traveler follows a path through the landscape"
+artwork: /images/art/vector-search.webp
+artwork_alt: "An indigo engraving of an antique sieve holding a few smooth pebbles"
 mathjax: true
 ---
 

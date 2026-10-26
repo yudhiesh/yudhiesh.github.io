@@ -17,7 +17,7 @@
 {%- assign article_anchor = 'href="' | append: article_url | append: '#' -%}
 {%- assign portable = portable | replace: 'src="/', absolute_src | replace: 'href="/', absolute_href | replace: 'href="#', article_anchor -%}
 {%- if include.post.artwork -%}
-<figure><img src="{{ include.post.artwork | absolute_url | escape }}" alt="{{ include.post.artwork_alt | escape }}" width="1536" height="1024">{% if include.post.artwork_caption %}<figcaption>{{ include.post.artwork_caption | escape }}</figcaption>{% endif %}</figure>
+<figure><img src="{{ include.post.artwork | absolute_url | escape }}" alt="{{ include.post.artwork_alt | escape }}" width="160" height="160">{% if include.post.artwork_caption %}<figcaption>{{ include.post.artwork_caption | escape }}</figcaption>{% endif %}</figure>
 {%- endif -%}
 {{ portable }}
 <p><a href="{{ article_url | escape }}">Read this post on Bits &amp; Backprops</a> for the full layout and any interactive views.</p>

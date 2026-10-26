@@ -2,33 +2,23 @@
 layout: base
 ---
 <div class="home">
-  <section class="cover" aria-labelledby="cover-title">
-    <div class="cover-topline"><span>An engineering notebook</span><span>Kuala Lumpur · Est. 2024</span></div>
-    <img class="cover-art" src="{{ '/images/art/retro-cover.webp' | relative_url }}" alt="A traveler looks across a luminous alien landscape toward a golden branching tree beneath two moons" width="1536" height="1024" fetchpriority="high" decoding="async">
-    <div class="cover-copy">
-      <p class="eyebrow">Machine learning / systems / the worlds between</p>
-      <h1 id="cover-title">Bits <span>&amp;</span> Backprops</h1>
-      <div class="cover-bottomline">
-        <p>Notes on machine learning, the systems around it, and what happens when you put them to work.</p>
-        <a href="#writing-heading">Explore the writing <span aria-hidden="true">↗</span></a>
-      </div>
-    </div>
-  </section>
+  <header class="notebook-intro">
+    <img class="home-art" src="{{ '/images/art/ginkgo.webp' | relative_url }}" alt="An indigo engraving of a ginkgo branch" width="480" height="480" decoding="async">
+    <p class="eyebrow">An engineering notebook</p>
+    <h1>Bits &amp; Backprops</h1>
+    <p class="intro-copy">Notes on machine learning, the systems around it, and what happens when you put them to work.</p>
+    <p class="intro-byline">By {{ site.author.name | escape }} · Kuala Lumpur</p>
+  </header>
   {{ content }}
-  <section class="writing-section" aria-labelledby="writing-heading">
-    <div class="section-label"><div><p class="eyebrow">01 / Field notes</p><h2 id="writing-heading">Writing</h2></div><a href="{{ '/feed.xml' | relative_url }}">Follow via RSS ↗</a></div>
-    <ul class="post-list home-post-list">
+  <section aria-labelledby="writing-heading">
+    <div class="section-label"><h2 id="writing-heading">Writing</h2><a href="{{ '/feed.xml' | relative_url }}">Follow via RSS ↗</a></div>
+    <ul class="post-list">
       {% for post in site.posts %}
-      <li class="home-post-card">
-        <a class="post-art-link" href="{{ post.url | relative_url }}" aria-label="Read {{ post.title | escape }}">
-          <img src="{{ post.artwork | relative_url }}" alt="{{ post.artwork_alt | escape }}" width="1536" height="1024" loading="lazy" decoding="async">
-        </a>
-        <div class="post-card-copy">
-          <p class="card-kicker"><span>0{{ forloop.index }} / {% if post.series %}{{ post.series | escape }}{% else %}{% assign topic_slug = post.tags | first %}{% assign topic = site.data.topics | where: 'slug', topic_slug | first %}{{ topic.name | default: 'Field notes' | escape }}{% endif %}</span><time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%b %-d, %Y' }}</time></p>
-          <h3><a class="post-link" href="{{ post.url | relative_url }}">{{ post.title | escape }}</a></h3>
-          <p class="post-excerpt">{{ post.excerpt | strip_html | normalize_whitespace | escape }}</p>
-          <a class="card-read-link" href="{{ post.url | relative_url }}">Read story <span aria-hidden="true">→</span></a>
-        </div>
+      <li>
+        <time class="post-meta" datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%b %-d, %Y' }}</time>
+        <h3><a class="post-link" href="{{ post.url | relative_url }}">{{ post.title | escape }}</a></h3>
+        <p class="post-excerpt">{{ post.excerpt | strip_html | normalize_whitespace | escape }}</p>
+        {% if post.series %}<p class="series-label">{{ post.series | escape }} · Part {{ post.part }}</p>{% endif %}
       </li>
       {% endfor %}
     </ul>

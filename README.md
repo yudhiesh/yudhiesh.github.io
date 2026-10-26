@@ -22,18 +22,17 @@ Copy `templates/post.md` into `docs/_posts/YYYY-MM-DD-your-title.md`, replace th
 sample front matter, and write in Markdown. Existing URLs are controlled by the
 permalink in `docs/_config.yml`; keep published filenames stable.
 
-Every post needs its own landscape artwork. Choose a scene connected to the
-article, then set `artwork` and a descriptive `artwork_alt`. Shared opener
-images are rejected by the PR checks. Export optimized WebP assets to
-`docs/images/art/` and keep the dimensions in the `image` metadata accurate.
+Every post needs its own generated engraving. Generate a subject connected to
+the article, then set `artwork` and a descriptive `artwork_alt`. Shared opener
+images are rejected by the PR checks. The ginkgo belongs to the homepage only.
 `image` independently controls the social preview. Use a site-relative asset path, such as
 `/images/art/your-subject.webp`, and a meaningful alt description. Optional
 `artwork_caption`, `subtitle`, `series`, `part`, and `last_modified_at` fields are
 supported. The layout adds the date, reading time, author, topic links, and return
 link automatically.
 
-See [the editorial guide](docs/EDITORIAL.md) for the visual direction, writing
-style, and a small pre-publish checklist.
+See [the editorial guide](docs/EDITORIAL.md) for the art direction, reusable art
+prompt, writing style, and a small pre-publish checklist.
 
 ## Validate a build
 
